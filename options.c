@@ -60,3 +60,9 @@ void validate_options(options *opts) {
     illegal_option("file is not given.");
   }
 }
+
+void free_options(options *opts) {
+  if (opts->file) {
+    free(opts->file);
+  }
+}

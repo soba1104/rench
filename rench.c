@@ -14,5 +14,7 @@ int main(int argc, char *argv[]) {
 
   fprintf(stderr, "file = %s, bitrate = %u\n", opts.file, opts.bitrate);
 
+  free_options(&opts);
+
   return 0;
 }
