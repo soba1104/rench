@@ -52,6 +52,11 @@ void set_host_option(options *opts, char *host) {
 }
 
 void set_port_option(options *opts, char *port) {
+	int p = atoi(port);
+	if (p < 0) {
+		illegal_option("port number must be grater than 0.");
+	}
+	opts->port = p;
 }
 
 void parse_options(options *opts, int argc, char *argv[]) {
@@ -71,13 +76,23 @@ void parse_options(options *opts, int argc, char *argv[]) {
 	}
 }
 
+void validate_options(options *opts) {
+	if (!opts->host) {
+		illegal_option("host is not given.");
+	}
+	if (opts->port < 0) {
+		illegal_option("port is not given.");
+	}
+}
+
 int main(int argc, char *argv[]) {
 	options opts;
 
 	init_options(&opts);
 	parse_options(&opts, argc, argv);
+	validate_options(&opts);
 
-	fprintf(stderr, "bitrate = %u\n", opts.bitrate);
+	fprintf(stderr, "target = %s:%u, bitrate = %u\n", opts.host, (uint16_t)opts.port, opts.bitrate);
 
 	return 0;
 }
