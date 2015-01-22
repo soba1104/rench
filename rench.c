@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
   parse_options(&opts, argc, argv);
   validate_options(&opts);
 
-  fprintf(stderr, "target = %s:%u:%s, bitrate = %u\n", opts.host, (uint16_t)opts.port, opts.file, opts.bitrate);
+  fprintf(stderr, "file = %s, bitrate = %u\n", opts.file, opts.bitrate);
 
   return 0;
 }
