@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
   parse_options(&opts, argc, argv);
   validate_options(&opts);
 
-  fprintf(stderr, "file = %s, bitrate = %u\n", opts.file, opts.bitrate);
+  fprintf(stderr, "file = %s, bitrate = %u, bufsize = %u\n", opts.file, opts.bitrate, opts.bufsize);
   run(opts.file);
 
   free_options(&opts);
