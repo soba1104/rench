@@ -1,4 +1,9 @@
+INCLUDES = rench.h
+
 all: rench
 
-rench: rench.c
-	gcc rench.c -o rench
+%.o: %.c $(INCLUDES)
+	gcc -c -o $@ $<
+
+rench: rench.o options.o
+	gcc rench.o options.o -o rench
