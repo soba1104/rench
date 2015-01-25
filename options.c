@@ -13,7 +13,7 @@ void options_show_help(void) {
     fprintf(stdout, "------------------- general options -------------------\n");
     fprintf(stdout, "-f path:      (requirement)target file path.\n");
     fprintf(stdout, "-s bufsize:   buffer size. default 10M.\n");
-    fprintf(stdout, "-b bitrate:   bitrate. default 128K.\n");
+    fprintf(stdout, "-b byterate:  byterate. default 128K.\n");
     fprintf(stdout, "-t type:      fops type(posix or gfapi). default posix.\n");
     fprintf(stdout, "-d:           debug mode. default off.\n");
     fprintf(stdout, "-------------------------------------------------------\n");
@@ -26,7 +26,7 @@ void options_show_help(void) {
 }
 
 void options_init(options *opts) {
-    opts->bitrate = DEFAULT_BITRATE;
+    opts->byterate = DEFAULT_BYTERATE;
     opts->bufsize = DEFAULT_BUFSIZE;
     opts->file = NULL;
     opts->host = NULL;
@@ -36,13 +36,13 @@ void options_init(options *opts) {
     opts->debug = false;
 }
 
-void set_bitrate_option(options *opts, char *bitrate) {
-    int l = strlen(bitrate);
-    int b = atoi(bitrate);
+void set_byterate_option(options *opts, char *byterate) {
+    int l = strlen(byterate);
+    int b = atoi(byterate);
     if (b <= 0) {
-        illegal_option("bitrate must be grater than 0.");
+        illegal_option("byterate must be grater than 0.");
     }
-    switch (bitrate[l - 1]) {
+    switch (byterate[l - 1]) {
         case 'M':
         case 'm':
             b *= 1024;
@@ -50,7 +50,7 @@ void set_bitrate_option(options *opts, char *bitrate) {
         case 'K':
             b *= 1024;
     }
-    opts->bitrate = b;
+    opts->byterate = b;
 }
 
 void set_bufsize_option(options *opts, char *bufsize) {
@@ -125,7 +125,7 @@ void options_parse(options *opts, int argc, char *argv[]) {
     while ((opt = getopt(argc, argv, "s:f:b:h:p:t:v:d")) != -1) {
         switch (opt) {
             case 'b':
-                set_bitrate_option(opts, optarg);
+                set_byterate_option(opts, optarg);
                 break;
             case 's':
                 set_bufsize_option(opts, optarg);

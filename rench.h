@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define DEFAULT_BITRATE (128 * 1024)
+#define DEFAULT_BYTERATE (128 * 1024)
 #define DEFAULT_BUFSIZE (10 * 1024 * 1024)
 
 typedef enum {
@@ -12,7 +12,7 @@ typedef enum {
 } fops_type;
 
 typedef struct __options {
-    uint32_t bitrate;
+    uint32_t byterate;
     uint32_t bufsize;
     char *file;
     char *host;
@@ -40,7 +40,7 @@ typedef struct __fops {
 
 typedef struct __consumer_args {
     buffer *buf;
-    uint32_t bitrate;
+    uint32_t byterate;
     bool debug;
 } consumer_args;
 
@@ -64,7 +64,7 @@ void options_validate(options *opts);
 void options_free(options *opts);
 
 void *consumer_main(void *arg);
-void consumer_init_args(consumer_args *args, buffer *buf, uint32_t bitrate, bool debug);
+void consumer_init_args(consumer_args *args, buffer *buf, uint32_t byterate, bool debug);
 
 void *producer_main(void *ptr);
 void producer_init_args(producer_args *args, buffer *buf, char *file, fops *fops, bool debug);
