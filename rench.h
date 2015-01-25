@@ -31,6 +31,18 @@ typedef struct __producer_args {
     char *file;
 } producer_args;
 
+typedef struct __fops {
+    void *state;
+    bool (*open)(void*);
+    int (*read)(void*, void*, int);
+    void (*close)(void*);
+} fops;
+
+bool fops_open(fops *fops);
+int fops_read(fops *fops, void *buf, int len);
+void fops_close(fops *fops);
+fops *fops_posix_new(char *path);
+
 void illegal_option(char *errmsg);
 void init_options(options *opts);
 void set_bitrate_option(options *opts, char *bitrate);

@@ -1,5 +1,5 @@
 INCLUDES = rench.h
-OBJS = rench.o options.o producer.o consumer.o buffer.o
+OBJS = rench.o options.o producer.o consumer.o buffer.o fops.o
 
 all: rench
 
