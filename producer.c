@@ -13,12 +13,7 @@ void *producer_main(void *ptr) {
     buffer *buf = args->buf;
     uint32_t bufsize = buffer_get_size(buf);
     char *file = args->file;
-    fops *fops = fops_posix_new(file);
-
-    if (!fops) {
-        fprintf(stderr, "failed to allocate fops\n");
-        goto out;
-    }
+    fops *fops = args->fops;
 
     if (!fops_open(fops)) {
         fprintf(stderr, "failed to open %s: ", file);
@@ -53,16 +48,14 @@ void *producer_main(void *ptr) {
     }
 
 out:
-    if (fops) {
-        fops_close(fops);
-    }
     if (localbuf) {
         free(localbuf);
     }
     return NULL;
 }
 
-void producer_init_args(producer_args *args, buffer *buf, char *file) {
+void producer_init_args(producer_args *args, buffer *buf, char *file, fops *fops) {
     args->buf = buf;
     args->file = file;
+    args->fops = fops;
 }

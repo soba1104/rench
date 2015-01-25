@@ -29,6 +29,13 @@ typedef struct __buffer {
     bool eof;
 } buffer;
 
+typedef struct __fops {
+    void *state;
+    bool (*open)(void*);
+    int (*read)(void*, void*, int);
+    void (*close)(void*);
+} fops;
+
 typedef struct __consumer_args {
     buffer *buf;
     uint32_t bitrate;
@@ -37,14 +44,8 @@ typedef struct __consumer_args {
 typedef struct __producer_args {
     buffer *buf;
     char *file;
+    fops *fops;
 } producer_args;
-
-typedef struct __fops {
-    void *state;
-    bool (*open)(void*);
-    int (*read)(void*, void*, int);
-    void (*close)(void*);
-} fops;
 
 bool fops_open(fops *fops);
 int fops_read(fops *fops, void *buf, int len);
@@ -64,7 +65,7 @@ void *consumer_main(void *arg);
 void consumer_init_args(consumer_args *args, buffer *buf, uint32_t bitrate);
 
 void *producer_main(void *ptr);
-void producer_init_args(producer_args *args, buffer *buf, char *file);
+void producer_init_args(producer_args *args, buffer *buf, char *file, fops *fops);
 
 void buffer_init(buffer *buf, uint32_t size);
 void buffer_free(buffer *buf);
