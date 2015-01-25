@@ -23,8 +23,8 @@ int main(int argc, char *argv[]) {
             fops = fops_posix_new(opts.file);
             if (opts.debug) {
                 fprintf(stdout,
-                        "type = posix, file = %s, byterate = %u, bufsize = %u\n",
-                        opts.file, opts.byterate, opts.bufsize);
+                        "type = posix, file = %s, byterate = %u, unit = %u, bufsize = %u\n",
+                        opts.file, opts.unit, opts.byterate, opts.bufsize);
             }
             break;
         case GFAPI:
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     }
 
     buffer_init(&buf, opts.bufsize);
-    producer_init_args(&pargs, &buf, opts.file, fops, opts.debug);
+    producer_init_args(&pargs, &buf, opts.unit, opts.file, fops, opts.debug);
     consumer_init_args(&cargs, &buf, opts.byterate, opts.debug);
 
     pthread_create(&producer_thread, NULL, producer_main, &pargs);

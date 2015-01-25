@@ -15,6 +15,7 @@ void options_show_help(void) {
     fprintf(stdout, "-s bufsize:   buffer size. default 10M.\n");
     fprintf(stdout, "-b bitrate:   bitrate. default 1M.\n");
     fprintf(stdout, "-B byterate:  byterate. default 128K.\n");
+    fprintf(stdout, "-u unit:      bytes per read. default 128K.\n");
     fprintf(stdout, "-t type:      fops type(posix or gfapi). default posix.\n");
     fprintf(stdout, "-d:           debug mode. default off.\n");
     fprintf(stdout, "-------------------------------------------------------\n");
@@ -29,6 +30,7 @@ void options_show_help(void) {
 void options_init(options *opts) {
     opts->byterate = DEFAULT_BYTERATE;
     opts->bufsize = DEFAULT_BUFSIZE;
+    opts->unit = DEFAULT_BYTERATE;
     opts->file = NULL;
     opts->host = NULL;
     opts->port = -1;
@@ -88,6 +90,23 @@ void set_bufsize_option(options *opts, char *bufsize) {
     opts->bufsize = s;
 }
 
+void set_unit_option(options *opts, char *unit) {
+    int l = strlen(unit);
+    int u = atoi(unit);
+    if (u <= 0) {
+        illegal_option("unit must be greater than 0.");
+    }
+    switch (unit[l - 1]) {
+        case 'M':
+        case 'm':
+            u *= 1024;
+        case 'k':
+        case 'K':
+            u *= 1024;
+    }
+    opts->unit = u;
+}
+
 void set_file_option(options *opts, char *file) {
     int l = strlen(file);
     if (l == 0) {
@@ -142,7 +161,7 @@ void set_debug_option(options *opts) {
 
 void options_parse(options *opts, int argc, char *argv[]) {
     int opt;
-    while ((opt = getopt(argc, argv, "s:f:b:B:h:p:t:v:d")) != -1) {
+    while ((opt = getopt(argc, argv, "s:u:f:b:B:h:p:t:v:d")) != -1) {
         switch (opt) {
             case 'B':
                 set_byterate_option(opts, optarg);
@@ -152,6 +171,9 @@ void options_parse(options *opts, int argc, char *argv[]) {
                 break;
             case 's':
                 set_bufsize_option(opts, optarg);
+                break;
+            case 'u':
+                set_unit_option(opts, optarg);
                 break;
             case 'f':
                 set_file_option(opts, optarg);
