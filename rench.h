@@ -15,6 +15,8 @@ typedef struct __buffer {
 	uint32_t size;
 	uint32_t idx;
 	pthread_mutex_t mutex;
+	pthread_cond_t cond;
+	bool eof;
 } buffer;
 
 typedef struct __consumer_args {
@@ -44,7 +46,8 @@ void producer_init_args(producer_args *args, buffer *buf, char *file);
 
 void buffer_init(buffer *buf, uint32_t size);
 void buffer_free(buffer *buf);
+void buffer_eof(buffer *buf);
 void buffer_produce(buffer *buf, uint32_t size);
-bool buffer_consume(buffer *buf, uint32_t size);
+uint64_t buffer_consume(buffer *buf, uint32_t size, uint64_t *time);
 uint32_t buffer_get_size(buffer *buf);
 uint32_t buffer_get_idx(buffer *buf);

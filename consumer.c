@@ -10,14 +10,17 @@ void *consumer_main(void *ptr) {
 	int i;
 
 	fprintf(stdout, "start consumer\n");
-	for (i = 0; i < 10; i++) {
-		bool available = buffer_consume(buf, bitrate);
-		if (!available) {
-			fprintf(stderr, "data unavailable.\n");
+	while (true) {
+		uint64_t time;
+		bool eof = buffer_consume(buf, bitrate, &time);
+		if (time > 0) {
+			fprintf(stderr, "data unavailable: %llu usec.\n", time);
+		}
+		if (eof) {
+			return NULL;
 		}
 		sleep(1);
 	}
-	return NULL;
 }
 
 void consumer_init_args(consumer_args *args, buffer *buf, uint32_t bitrate) {

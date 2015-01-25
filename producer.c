@@ -8,37 +8,6 @@
 #include <assert.h>
 #include <unistd.h>
 
-void loop(int fd, char *buf, uint32_t bufsize, uint32_t bitrate) {
-  int bufidx = 0;
-  int progress = 0;
-
-  while (1) {
-    struct timeval starttime, endtime;
-    int toread = bufsize - bufidx;
-    uint64_t usec;
-    assert(toread >= 0);
-
-    gettimeofday(&starttime, NULL);
-    if (toread > 0) { // buffer remains toread bytes.
-      int ret = read(fd, buf+bufidx, toread);
-      if (!ret) { // EOF
-        return;
-      } else if (ret < 0) {
-        perror("failed to read: ");
-      }
-      bufidx += ret;
-    } else { // toread == 0, buffer full.
-      bufidx -= bitrate;
-      sleep(1);
-    }
-    gettimeofday(&endtime, NULL);
-
-    usec = (endtime.tv_sec * 1000000 + endtime.tv_usec) - (starttime.tv_sec * 1000000 + starttime.tv_usec);
-    fprintf(stderr, "usec = %lld\n", usec);
-  }
-}
-
-
 void *producer_main(void *ptr) {
 	producer_args *args = ptr;
   char *localbuf = NULL;
@@ -67,12 +36,14 @@ void *producer_main(void *ptr) {
 
     if (toread > 0) { // buffer remains toread bytes.
       int ret = read(fd, localbuf, toread);
-      if (!ret) { // EOF
+			if (ret > 0) {
+				buffer_produce(buf, ret);
+			} else if (!ret) {
+				buffer_eof(buf);
 				goto out;
-      } else if (ret < 0) {
+      } else {
         perror("failed to read: ");
       }
-			buffer_produce(buf, ret);
     } else { // toread == 0, buffer full.
 			fprintf(stderr, "Zzz...\n");
       sleep(1); // TODO use pthread_cond_wait
