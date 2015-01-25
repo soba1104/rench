@@ -7,15 +7,16 @@ void *consumer_main(void *ptr) {
     uint32_t bitrate = args->bitrate;
     int i;
     bool init = true, debug = args->debug;
+    uint64_t consumed = 0;
 
     while (true) {
         uint64_t time;
         bool consumable = buffer_wait_consumable(buf, bitrate, &time);
         if (init) {
-            fprintf(stdout, "initialize %lluusec.\n", time);
+            fprintf(stdout, "initialize %lluusec\n", time);
             init = false;
         } else if (time > 0) {
-            fprintf(stdout, "unavailable %lluusec.\n", time);
+            fprintf(stdout, "unavailable %lluusec\n", time);
         } else if (debug) {
             fprintf(stdout, "available\n");
         }
@@ -23,6 +24,10 @@ void *consumer_main(void *ptr) {
             return NULL;
         }
         buffer_consume(buf, bitrate);
+        consumed += bitrate;
+        if (debug) {
+            fprintf(stderr, "consumed %llubytes\n", consumed);
+        }
         sleep(1);
     }
 }
