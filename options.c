@@ -10,16 +10,19 @@ void illegal_option(char *errmsg) {
 }
 
 void options_show_help(void) {
-    fprintf(stdout, "-------- general options --------\n");
-    fprintf(stdout, "-f: (requirement)target file path.\n");
-    fprintf(stdout, "-s: buffer size.\n");
-    fprintf(stdout, "-b: bitrate.\n");
-    fprintf(stdout, "-t: fops type(posix or gfapi).\n");
-    fprintf(stdout, "-d: debug mode.\n");
-    fprintf(stdout, "--------- gfapi options ---------\n");
-    fprintf(stdout, "-h: hostname.\n");
-    fprintf(stdout, "-p: port number.");
-    fprintf(stdout, "-v: volume name.\n");
+    fprintf(stdout, "------------------- general options -------------------\n");
+    fprintf(stdout, "-f path:      (requirement)target file path.\n");
+    fprintf(stdout, "-s bufsize:   buffer size. default 10M.\n");
+    fprintf(stdout, "-b bitrate:   bitrate. default 128K.\n");
+    fprintf(stdout, "-t type:      fops type(posix or gfapi). default posix.\n");
+    fprintf(stdout, "-d:           debug mode. default off.\n");
+    fprintf(stdout, "-------------------------------------------------------\n");
+    fprintf(stdout, "\n");
+    fprintf(stdout, "-------------------- gfapi options --------------------\n");
+    fprintf(stdout, "-h:           hostname.\n");
+    fprintf(stdout, "-p:           port number.\n");
+    fprintf(stdout, "-v:           volume name.\n");
+    fprintf(stdout, "-------------------------------------------------------\n");
 }
 
 void options_init(options *opts) {
