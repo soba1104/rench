@@ -8,18 +8,16 @@ void *consumer_main(void *ptr) {
     int i;
     bool init = true;
 
-    fprintf(stdout, "start consumer\n");
     while (true) {
         uint64_t time;
         bool consumable = buffer_wait_consumable(buf, bitrate, &time);
         if (init) {
-            fprintf(stderr, "initialize %lluusec.\n", time);
+            fprintf(stdout, "initialize %lluusec.\n", time);
             init = false;
         } else if (time > 0) {
-            fprintf(stderr, "unavailable %lluusec.\n", time);
+            fprintf(stdout, "unavailable %lluusec.\n", time);
         }
         if (!consumable) { // eof
-            fprintf(stdout, "end consumer\n");
             return NULL;
         }
         buffer_consume(buf, bitrate);

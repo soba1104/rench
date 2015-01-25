@@ -28,7 +28,6 @@ void *producer_main(void *ptr) {
         goto out;
     }
 
-    fprintf(stdout, "start producer\n");
     while (true) {
         uint32_t bufidx;
         int toread, ret;
@@ -50,7 +49,6 @@ void *producer_main(void *ptr) {
     }
 
 out:
-    fprintf(stdout, "end producer\n");
     if (fd >= 0) {
         close(fd);
     }
