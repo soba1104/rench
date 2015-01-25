@@ -10,9 +10,9 @@ int main(int argc, char *argv[]) {
     fops *fops;
     int ret = 0;
 
-    init_options(&opts);
-    parse_options(&opts, argc, argv);
-    validate_options(&opts);
+    options_init(&opts);
+    options_parse(&opts, argc, argv);
+    options_validate(&opts);
 
     switch (opts.type) {
         case POSIX:
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
 out:
     fops_free(fops);
     buffer_free(&buf);
-    free_options(&opts);
+    options_free(&opts);
 
     return ret;
 }

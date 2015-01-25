@@ -53,14 +53,10 @@ void fops_close(fops *fops);
 void fops_free(fops *fops);
 fops *fops_posix_new(char *path);
 
-void illegal_option(char *errmsg);
-void init_options(options *opts);
-void set_bitrate_option(options *opts, char *bitrate);
-void set_bufsize_option(options *opts, char *bufsize);
-void set_file_option(options *opts, char *file);
-void parse_options(options *opts, int argc, char *argv[]);
-void validate_options(options *opts);
-void free_options(options *opts);
+void options_init(options *opts);
+void options_parse(options *opts, int argc, char *argv[]);
+void options_validate(options *opts);
+void options_free(options *opts);
 
 void *consumer_main(void *arg);
 void consumer_init_args(consumer_args *args, buffer *buf, uint32_t bitrate);

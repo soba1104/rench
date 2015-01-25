@@ -9,7 +9,7 @@ void illegal_option(char *errmsg) {
     exit(1);
 }
 
-void init_options(options *opts) {
+void options_init(options *opts) {
     opts->bitrate = DEFAULT_BITRATE;
     opts->bufsize = DEFAULT_BUFSIZE;
     opts->file = NULL;
@@ -89,7 +89,7 @@ void set_fops_type_option(options *opts, char *type) {
     }
 }
 
-void parse_options(options *opts, int argc, char *argv[]) {
+void options_parse(options *opts, int argc, char *argv[]) {
     int opt;
     while ((opt = getopt(argc, argv, "s:f:b:h:p:t:")) != -1) {
         switch (opt) {
@@ -115,7 +115,7 @@ void parse_options(options *opts, int argc, char *argv[]) {
     }
 }
 
-void validate_options(options *opts) {
+void options_validate(options *opts) {
     if (!opts->file) {
         illegal_option("file is not given.");
     }
@@ -124,7 +124,7 @@ void validate_options(options *opts) {
     }
 }
 
-void free_options(options *opts) {
+void options_free(options *opts) {
     if (opts->file) {
         free(opts->file);
     }
