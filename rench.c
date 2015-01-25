@@ -27,8 +27,8 @@ int main(int argc, char *argv[]) {
                         opts.file, opts.byterate, opts.bufsize);
             }
             break;
-        case UNDEF:
-            fprintf(stderr, "bug: should not be reached.\n");
+        case GFAPI:
+            fprintf(stderr, "todo: not implemented.\n");
             goto out;
     }
     if (!fops) {

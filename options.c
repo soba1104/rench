@@ -33,7 +33,7 @@ void options_init(options *opts) {
     opts->host = NULL;
     opts->port = -1;
     opts->volume = NULL;
-    opts->type = UNDEF;
+    opts->type = POSIX;
     opts->debug = false;
 }
 
@@ -129,6 +129,8 @@ void set_volume_option(options *opts, char *volume) {
 void set_fops_type_option(options *opts, char *type) {
     if (strcmp(type, "posix") == 0) {
         opts->type = POSIX;
+    } else if (strcmp(type, "gfapi") == 0) {
+        opts->type = GFAPI;
     } else {
         illegal_option("invalid fops type.");
     }
@@ -177,8 +179,16 @@ void options_validate(options *opts) {
     if (!opts->file) {
         illegal_option("file is not given.");
     }
-    if (opts->type == UNDEF) {
-        illegal_option("fops type is not given.");
+    if (opts->type == GFAPI) {
+        if (!opts->host) {
+            illegal_option("hostname is not given.");
+        }
+        if (opts->port < 0) {
+            illegal_option("port number is not given.");
+        }
+        if (!opts->volume) {
+            illegal_option("volume name is not given.");
+        }
     }
 }
 

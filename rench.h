@@ -7,8 +7,8 @@
 #define DEFAULT_BUFSIZE (10 * 1024 * 1024)
 
 typedef enum {
-    UNDEF,
-    POSIX
+    POSIX,
+    GFAPI
 } fops_type;
 
 typedef struct __options {
