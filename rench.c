@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <fcntl.h>
 #include <assert.h>
+#include <unistd.h>
 
 #include "rench.h"
 
@@ -33,7 +35,7 @@ void loop(int fd, char *buf, uint32_t bufsize, uint32_t bitrate) {
     gettimeofday(&endtime, NULL);
 
     usec = (endtime.tv_sec * 1000000 + endtime.tv_usec) - (starttime.tv_sec * 1000000 + starttime.tv_usec);
-    fprintf(stderr, "usec = %ld\n", usec);
+    fprintf(stderr, "usec = %lld\n", usec);
   }
 }
 
