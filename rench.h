@@ -6,27 +6,27 @@
 #define DEFAULT_BUFSIZE (10 * 1024 * 1024)
 
 typedef struct __options {
-  uint32_t bitrate;
-  uint32_t bufsize;
-  char *file;
+    uint32_t bitrate;
+    uint32_t bufsize;
+    char *file;
 } options;
 
 typedef struct __buffer {
-	uint32_t size;
-	uint32_t idx;
-	pthread_mutex_t mutex;
-	pthread_cond_t cond;
-	bool eof;
+    uint32_t size;
+    uint32_t idx;
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+    bool eof;
 } buffer;
 
 typedef struct __consumer_args {
-	buffer *buf;
-	uint32_t bitrate;
+    buffer *buf;
+    uint32_t bitrate;
 } consumer_args;
 
 typedef struct __producer_args {
-	buffer *buf;
-	char *file;
+    buffer *buf;
+    char *file;
 } producer_args;
 
 void illegal_option(char *errmsg);
