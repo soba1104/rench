@@ -57,6 +57,7 @@ void fops_close(fops *fops);
 void fops_free(fops *fops);
 fops *fops_posix_new(char *path);
 
+void options_show_help(void);
 void options_init(options *opts);
 void options_parse(options *opts, int argc, char *argv[]);
 void options_validate(options *opts);

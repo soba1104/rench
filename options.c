@@ -9,6 +9,19 @@ void illegal_option(char *errmsg) {
     exit(1);
 }
 
+void options_show_help(void) {
+    fprintf(stdout, "-------- general options --------\n");
+    fprintf(stdout, "-f: (requirement)target file path.\n");
+    fprintf(stdout, "-s: buffer size.\n");
+    fprintf(stdout, "-b: bitrate.\n");
+    fprintf(stdout, "-t: fops type(posix or gfapi).\n");
+    fprintf(stdout, "-d: debug mode.\n");
+    fprintf(stdout, "--------- gfapi options ---------\n");
+    fprintf(stdout, "-h: hostname.\n");
+    fprintf(stdout, "-p: port number.");
+    fprintf(stdout, "-v: volume name.\n");
+}
+
 void options_init(options *opts) {
     opts->bitrate = DEFAULT_BITRATE;
     opts->bufsize = DEFAULT_BUFSIZE;

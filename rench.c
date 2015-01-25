@@ -10,6 +10,10 @@ int main(int argc, char *argv[]) {
     fops *fops;
     int ret = 0;
 
+    if (argc == 1) {
+        options_show_help();
+        return 0;
+    }
     options_init(&opts);
     options_parse(&opts, argc, argv);
     options_validate(&opts);
