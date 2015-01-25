@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+
+require 'webrick'
+require 'optparse'
+
+opt = OptionParser.new()
+options = {}
+opt.on('-d document_root', '(必須)ドキュメントルートのパス') {|v| options[:document_root] = v}
+opt.on('-p port', Integer, '(必須)listen するポート番号') {|v| options[:port] = v}
+opt.parse!(ARGV)
+
+document_root = options[:document_root]
+port = options[:port]
+
+if document_root.nil?
+	STDERR.puts("document root is not given.")
+	exit(1)
+end
+
+if port.nil?
+	STDERR.puts("port number is not given.")
+	exit(1)
+end
+
+unless File.exist?(document_root)
+	STDERR.puts("#{document_root} does not exist.")
+	exit(1)
+end
+
+unless 0 <= port && port <= 65535
+	STDERR.puts("invalid port range #{port}.")
+	exit(1)
+end
+
+server = WEBrick::HTTPServer.new({
+	:DocumentRoot => document_root,
+	:BindAddresses => '0.0.0.0',
+	:Port => port,
+})
+
+Signal.trap('INT'){ server.shutdown() }
+server.start()
