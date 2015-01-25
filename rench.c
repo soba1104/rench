@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
     pthread_join(consumer_thread, NULL);
 
 out:
-    fops_close(fops);
+    fops_free(fops);
     buffer_free(&buf);
     free_options(&opts);
 

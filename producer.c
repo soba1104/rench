@@ -48,6 +48,7 @@ void *producer_main(void *ptr) {
     }
 
 out:
+    fops_close(fops);
     if (localbuf) {
         free(localbuf);
     }

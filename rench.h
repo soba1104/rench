@@ -50,6 +50,7 @@ typedef struct __producer_args {
 bool fops_open(fops *fops);
 int fops_read(fops *fops, void *buf, int len);
 void fops_close(fops *fops);
+void fops_free(fops *fops);
 fops *fops_posix_new(char *path);
 
 void illegal_option(char *errmsg);

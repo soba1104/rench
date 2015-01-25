@@ -58,5 +58,8 @@ int fops_read(fops *fops, void *buf, int len) {
 
 void fops_close(fops *fops) {
     fops->close(fops->state);
+}
+
+void fops_free(fops *fops) {
     free(fops);
 }
