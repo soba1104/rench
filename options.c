@@ -15,7 +15,7 @@ void init_options(options *opts) {
     opts->file = NULL;
     opts->host = NULL;
     opts->port = -1;
-    opts->fops_type = NULL;
+    opts->type = UNDEF;
 }
 
 void set_bitrate_option(options *opts, char *bitrate) {
@@ -81,9 +81,9 @@ void set_port_option(options *opts, char *port) {
     opts->port = p;
 }
 
-void set_fops_type_option(options *opts, char *fops_type) {
-    if (strcmp(fops_type, "posix") == 0) {
-        opts->fops_type = "posix";
+void set_fops_type_option(options *opts, char *type) {
+    if (strcmp(type, "posix") == 0) {
+        opts->type = POSIX;
     } else {
         illegal_option("invalid fops type.");
     }
@@ -119,7 +119,7 @@ void validate_options(options *opts) {
     if (!opts->file) {
         illegal_option("file is not given.");
     }
-    if (!opts->fops_type) {
+    if (opts->type == UNDEF) {
         illegal_option("fops type is not given.");
     }
 }
