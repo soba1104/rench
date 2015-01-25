@@ -15,7 +15,9 @@ void options_init(options *opts) {
     opts->file = NULL;
     opts->host = NULL;
     opts->port = -1;
+    opts->volume = NULL;
     opts->type = UNDEF;
+    opts->debug = false;
 }
 
 void set_bitrate_option(options *opts, char *bitrate) {
@@ -81,6 +83,15 @@ void set_port_option(options *opts, char *port) {
     opts->port = p;
 }
 
+void set_volume_option(options *opts, char *volume) {
+    int l = strlen(volume);
+    if (l == 0) {
+        illegal_option("invalid volume name.");
+    }
+    opts->volume = malloc(l + 1);
+    strcpy(opts->volume, volume);
+}
+
 void set_fops_type_option(options *opts, char *type) {
     if (strcmp(type, "posix") == 0) {
         opts->type = POSIX;
@@ -89,9 +100,13 @@ void set_fops_type_option(options *opts, char *type) {
     }
 }
 
+void set_debug_option(options *opts) {
+    opts->debug = true;
+}
+
 void options_parse(options *opts, int argc, char *argv[]) {
     int opt;
-    while ((opt = getopt(argc, argv, "s:f:b:h:p:t:")) != -1) {
+    while ((opt = getopt(argc, argv, "s:f:b:h:p:t:v:d")) != -1) {
         switch (opt) {
             case 'b':
                 set_bitrate_option(opts, optarg);
@@ -108,8 +123,14 @@ void options_parse(options *opts, int argc, char *argv[]) {
             case 'p':
                 set_port_option(opts, optarg);
                 break;
+            case 'v':
+                set_volume_option(opts, optarg);
+                break;
             case 't':
                 set_fops_type_option(opts, optarg);
+                break;
+            case 'd':
+                set_debug_option(opts);
                 break;
         }
     }
@@ -130,5 +151,8 @@ void options_free(options *opts) {
     }
     if (opts->host) {
         free(opts->host);
+    }
+    if (opts->volume) {
+        free(opts->volume);
     }
 }

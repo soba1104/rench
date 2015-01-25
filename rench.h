@@ -16,8 +16,10 @@ typedef struct __options {
     uint32_t bufsize;
     char *file;
     char *host;
+    char *volume;
     int port;
     fops_type type;
+    bool debug;
 } options;
 
 typedef struct __buffer {
@@ -39,12 +41,14 @@ typedef struct __fops {
 typedef struct __consumer_args {
     buffer *buf;
     uint32_t bitrate;
+    bool debug;
 } consumer_args;
 
 typedef struct __producer_args {
     buffer *buf;
     char *file;
     fops *fops;
+    bool debug;
 } producer_args;
 
 bool fops_open(fops *fops);
@@ -59,10 +63,10 @@ void options_validate(options *opts);
 void options_free(options *opts);
 
 void *consumer_main(void *arg);
-void consumer_init_args(consumer_args *args, buffer *buf, uint32_t bitrate);
+void consumer_init_args(consumer_args *args, buffer *buf, uint32_t bitrate, bool debug);
 
 void *producer_main(void *ptr);
-void producer_init_args(producer_args *args, buffer *buf, char *file, fops *fops);
+void producer_init_args(producer_args *args, buffer *buf, char *file, fops *fops, bool debug);
 
 void buffer_init(buffer *buf, uint32_t size);
 void buffer_free(buffer *buf);

@@ -55,8 +55,9 @@ out:
     return NULL;
 }
 
-void producer_init_args(producer_args *args, buffer *buf, char *file, fops *fops) {
+void producer_init_args(producer_args *args, buffer *buf, char *file, fops *fops, bool debug) {
     args->buf = buf;
     args->file = file;
     args->fops = fops;
+    args->debug = debug;
 }

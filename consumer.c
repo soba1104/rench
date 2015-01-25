@@ -6,7 +6,7 @@ void *consumer_main(void *ptr) {
     buffer *buf = args->buf;
     uint32_t bitrate = args->bitrate;
     int i;
-    bool init = true;
+    bool init = true, debug = args->debug;
 
     while (true) {
         uint64_t time;
@@ -16,6 +16,8 @@ void *consumer_main(void *ptr) {
             init = false;
         } else if (time > 0) {
             fprintf(stdout, "unavailable %lluusec.\n", time);
+        } else if (debug) {
+            fprintf(stdout, "available\n");
         }
         if (!consumable) { // eof
             return NULL;
@@ -25,7 +27,8 @@ void *consumer_main(void *ptr) {
     }
 }
 
-void consumer_init_args(consumer_args *args, buffer *buf, uint32_t bitrate) {
+void consumer_init_args(consumer_args *args, buffer *buf, uint32_t bitrate, bool debug) {
     args->buf = buf;
     args->bitrate = bitrate;
+    args->debug = debug;
 }
