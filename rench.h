@@ -10,6 +10,9 @@ typedef struct __options {
     uint32_t bitrate;
     uint32_t bufsize;
     char *file;
+    char *host;
+    int port;
+    char *fops_type;
 } options;
 
 typedef struct __buffer {

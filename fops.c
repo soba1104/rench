@@ -5,7 +5,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-
 typedef struct __fops_posix_state {
     char *path;
     int fd;

@@ -13,6 +13,9 @@ void init_options(options *opts) {
     opts->bitrate = DEFAULT_BITRATE;
     opts->bufsize = DEFAULT_BUFSIZE;
     opts->file = NULL;
+    opts->host = NULL;
+    opts->port = -1;
+    opts->fops_type = NULL;
 }
 
 void set_bitrate_option(options *opts, char *bitrate) {
@@ -52,15 +55,43 @@ void set_bufsize_option(options *opts, char *bufsize) {
 void set_file_option(options *opts, char *file) {
     int l = strlen(file);
     if (l == 0) {
-        illegal_option("invalid filepath");
+        illegal_option("invalid filepath.");
     }
     opts->file = malloc(l + 1);
     strcpy(opts->file, file);
 }
 
+void set_host_option(options *opts, char *host) {
+    int l = strlen(host);
+    if (l == 0) {
+        illegal_option("invalid hostname.");
+    }
+    opts->host = malloc(l + 1);
+    strcpy(opts->host, host);
+}
+
+void set_port_option(options *opts, char *port) {
+    int p = atoi(port);
+    if (p < 0) {
+        illegal_option("port number must be greater than or equal to 0.");
+    }
+    if (p > 65535) {
+        illegal_option("port number must be less than 65536.");
+    }
+    opts->port = p;
+}
+
+void set_fops_type_option(options *opts, char *fops_type) {
+    if (strcmp(fops_type, "posix") == 0) {
+        opts->fops_type = "posix";
+    } else {
+        illegal_option("invalid fops type.");
+    }
+}
+
 void parse_options(options *opts, int argc, char *argv[]) {
     int opt;
-    while ((opt = getopt(argc, argv, "s:f:b:")) != -1) {
+    while ((opt = getopt(argc, argv, "s:f:b:h:p:t:")) != -1) {
         switch (opt) {
             case 'b':
                 set_bitrate_option(opts, optarg);
@@ -71,6 +102,15 @@ void parse_options(options *opts, int argc, char *argv[]) {
             case 'f':
                 set_file_option(opts, optarg);
                 break;
+            case 'h':
+                set_host_option(opts, optarg);
+                break;
+            case 'p':
+                set_port_option(opts, optarg);
+                break;
+            case 't':
+                set_fops_type_option(opts, optarg);
+                break;
         }
     }
 }
@@ -79,10 +119,16 @@ void validate_options(options *opts) {
     if (!opts->file) {
         illegal_option("file is not given.");
     }
+    if (!opts->fops_type) {
+        illegal_option("fops type is not given.");
+    }
 }
 
 void free_options(options *opts) {
     if (opts->file) {
         free(opts->file);
+    }
+    if (opts->host) {
+        free(opts->host);
     }
 }
