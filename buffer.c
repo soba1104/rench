@@ -1,14 +1,14 @@
-#include <rench.h>
+#include "rench.h"
 #include <assert.h>
 #include <sys/time.h>
-#include <stdio.h>
 
 void buffer_init(buffer *buf, uint32_t size) {
     buf->size = size;
     buf->idx = 0;
     buf->eof = false;
     pthread_mutex_init(&buf->mutex, NULL);
-    pthread_cond_init(&buf->cond, NULL);
+    pthread_cond_init(&buf->producible_cond, NULL);
+    pthread_cond_init(&buf->consumable_cond, NULL);
 }
 
 void buffer_free(buffer *buf) {
@@ -18,7 +18,17 @@ void buffer_free(buffer *buf) {
 void buffer_eof(buffer *buf) {
     pthread_mutex_lock(&buf->mutex);
     buf->eof = true;
-    pthread_cond_signal(&buf->cond);
+    pthread_cond_signal(&buf->consumable_cond);
+    pthread_mutex_unlock(&buf->mutex);
+}
+
+void buffer_wait_producible(buffer *buf) {
+    pthread_mutex_lock(&buf->mutex);
+    assert(buf->idx <= buf->size);
+    if (buf->idx == buf->size) { // buffer full
+        pthread_cond_wait(&buf->producible_cond, &buf->mutex);
+    }
+    assert(buf->idx < buf->size);
     pthread_mutex_unlock(&buf->mutex);
 }
 
@@ -26,39 +36,42 @@ void buffer_produce(buffer *buf, uint32_t size) {
     pthread_mutex_lock(&buf->mutex);
     buf->idx += size;
     assert(buf->idx <= buf->size);
-    pthread_cond_signal(&buf->cond);
+    pthread_cond_signal(&buf->consumable_cond);
     pthread_mutex_unlock(&buf->mutex);
 }
 
-uint64_t buffer_consume(buffer *buf, uint32_t size, uint64_t *time) {
-    bool eof;
+bool buffer_wait_consumable(buffer *buf, uint32_t size, uint64_t *time) {
+    bool consumable;
+    struct timeval s, e;
 
     pthread_mutex_lock(&buf->mutex);
-    eof = buf->eof;
-    if (eof) {
-        *time = 0;
-    } else if (buf->idx >= size) {
-        buf->idx -= size;
-        if (time) {
-            *time = 0;
-        }
-    } else {
-        struct timeval s, e;
-        gettimeofday(&s, NULL);
-        pthread_cond_wait(&buf->cond, &buf->mutex);
-        gettimeofday(&e, NULL);
-        eof = buf->eof;
-        if (time) {
-            *time = (e.tv_sec * 1000000 + e.tv_usec) - (s.tv_sec * 1000000 + s.tv_usec);
-        }
-        if (!eof) {
-            assert(buf->idx >= size);
-            buf->idx -= size;
+    assert(buf->idx <= buf->size);
+    gettimeofday(&s, NULL);
+    e = s;
+    while (true) {
+        if (buf->idx >= size) {
+            consumable = true;
+            break;
+        } else if (buf->eof) {
+            consumable = false;
+            break;
+        } else {
+            pthread_cond_wait(&buf->consumable_cond, &buf->mutex);
+            gettimeofday(&e, NULL);
         }
     }
+    *time = (e.tv_sec * 1000000 + e.tv_usec) - (s.tv_sec * 1000000 + s.tv_usec);
     pthread_mutex_unlock(&buf->mutex);
 
-    return eof;
+    return consumable;
+}
+
+void buffer_consume(buffer *buf, uint32_t size) {
+    pthread_mutex_lock(&buf->mutex);
+    assert(buf->idx >= size);
+    buf->idx -= size;
+    pthread_cond_signal(&buf->producible_cond);
+    pthread_mutex_unlock(&buf->mutex);
 }
 
 uint32_t buffer_get_size(buffer *buf) {

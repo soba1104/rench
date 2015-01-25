@@ -1,9 +1,8 @@
+#include "rench.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#include "rench.h"
 
 void illegal_option(char *errmsg) {
     fprintf(stderr, "%s\n", errmsg);

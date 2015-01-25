@@ -1,6 +1,7 @@
 #include <inttypes.h>
 #include <pthread.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #define DEFAULT_BITRATE (128 * 1024)
 #define DEFAULT_BUFSIZE (10 * 1024 * 1024)
@@ -15,7 +16,8 @@ typedef struct __buffer {
     uint32_t size;
     uint32_t idx;
     pthread_mutex_t mutex;
-    pthread_cond_t cond;
+    pthread_cond_t consumable_cond;
+    pthread_cond_t producible_cond;
     bool eof;
 } buffer;
 
@@ -47,7 +49,9 @@ void producer_init_args(producer_args *args, buffer *buf, char *file);
 void buffer_init(buffer *buf, uint32_t size);
 void buffer_free(buffer *buf);
 void buffer_eof(buffer *buf);
+void buffer_wait_producible(buffer *buf);
 void buffer_produce(buffer *buf, uint32_t size);
-uint64_t buffer_consume(buffer *buf, uint32_t size, uint64_t *time);
+bool buffer_wait_consumable(buffer *buf, uint32_t size, uint64_t *time);
+void buffer_consume(buffer *buf, uint32_t size);
 uint32_t buffer_get_size(buffer *buf);
 uint32_t buffer_get_idx(buffer *buf);

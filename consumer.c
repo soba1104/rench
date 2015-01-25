@@ -1,6 +1,4 @@
-#include <rench.h>
-
-#include <stdio.h>
+#include "rench.h"
 #include <unistd.h>
 
 void *consumer_main(void *ptr) {
@@ -8,17 +6,23 @@ void *consumer_main(void *ptr) {
     buffer *buf = args->buf;
     uint32_t bitrate = args->bitrate;
     int i;
+    bool init = true;
 
     fprintf(stdout, "start consumer\n");
     while (true) {
         uint64_t time;
-        bool eof = buffer_consume(buf, bitrate, &time);
-        if (time > 0) {
-            fprintf(stderr, "data unavailable: %llu usec.\n", time);
+        bool consumable = buffer_wait_consumable(buf, bitrate, &time);
+        if (init) {
+            fprintf(stderr, "initialize %lluusec.\n", time);
+            init = false;
+        } else if (time > 0) {
+            fprintf(stderr, "unavailable %lluusec.\n", time);
         }
-        if (eof) {
+        if (!consumable) { // eof
+            fprintf(stdout, "end consumer\n");
             return NULL;
         }
+        buffer_consume(buf, bitrate);
         sleep(1);
     }
 }

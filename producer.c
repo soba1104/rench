@@ -1,5 +1,4 @@
-#include <rench.h>
-#include <stdio.h>
+#include "rench.h"
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -29,28 +28,29 @@ void *producer_main(void *ptr) {
         goto out;
     }
 
-    while (1) {
-        uint32_t bufidx = buffer_get_idx(buf);
-        int toread = bufsize - bufidx;
-        assert(toread >= 0);
+    fprintf(stdout, "start producer\n");
+    while (true) {
+        uint32_t bufidx;
+        int toread, ret;
 
-        if (toread > 0) { // buffer remains toread bytes.
-            int ret = read(fd, localbuf, toread);
-            if (ret > 0) {
-                buffer_produce(buf, ret);
-            } else if (!ret) {
-                buffer_eof(buf);
-                goto out;
-            } else {
-                perror("failed to read: ");
-            }
-        } else { // toread == 0, buffer full.
-            fprintf(stderr, "Zzz...\n");
-            sleep(1); // TODO use pthread_cond_wait
+        buffer_wait_producible(buf);
+        bufidx = buffer_get_idx(buf);
+        toread = bufsize - bufidx;
+        assert(toread > 0);
+        ret = read(fd, localbuf, toread);
+        if (ret > 0) {
+            buffer_produce(buf, ret);
+        } else if (!ret) {
+            buffer_eof(buf);
+            goto out;
+        } else {
+            perror("failed to read: ");
+            goto out;
         }
     }
 
 out:
+    fprintf(stdout, "end producer\n");
     if (fd >= 0) {
         close(fd);
     }

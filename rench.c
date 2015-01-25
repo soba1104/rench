@@ -1,5 +1,4 @@
 #include "rench.h"
-#include <stdio.h>
 
 int main(int argc, char *argv[]) {
     options opts;
