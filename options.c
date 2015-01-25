@@ -13,7 +13,8 @@ void options_show_help(void) {
     fprintf(stdout, "------------------- general options -------------------\n");
     fprintf(stdout, "-f path:      (requirement)target file path.\n");
     fprintf(stdout, "-s bufsize:   buffer size. default 10M.\n");
-    fprintf(stdout, "-b byterate:  byterate. default 128K.\n");
+    fprintf(stdout, "-b bitrate:   bitrate. default 1M.\n");
+    fprintf(stdout, "-B byterate:  byterate. default 128K.\n");
     fprintf(stdout, "-t type:      fops type(posix or gfapi). default posix.\n");
     fprintf(stdout, "-d:           debug mode. default off.\n");
     fprintf(stdout, "-------------------------------------------------------\n");
@@ -40,7 +41,7 @@ void set_byterate_option(options *opts, char *byterate) {
     int l = strlen(byterate);
     int b = atoi(byterate);
     if (b <= 0) {
-        illegal_option("byterate must be grater than 0.");
+        illegal_option("byterate must be greater than 0.");
     }
     switch (byterate[l - 1]) {
         case 'M':
@@ -53,11 +54,28 @@ void set_byterate_option(options *opts, char *byterate) {
     opts->byterate = b;
 }
 
+void set_bitrate_option(options *opts, char *bitrate) {
+    int l = strlen(bitrate);
+    int b = atoi(bitrate);
+    if (b < 8) {
+        illegal_option("bitrate must be greater than or equal to 8.");
+    }
+    switch (bitrate[l - 1]) {
+        case 'M':
+        case 'm':
+            b *= 1024;
+        case 'k':
+        case 'K':
+            b *= 1024;
+    }
+    opts->byterate = b / 8;
+}
+
 void set_bufsize_option(options *opts, char *bufsize) {
     int l = strlen(bufsize);
     int s = atoi(bufsize);
     if (s <= 0) {
-        illegal_option("buffer size must be grater than 0.");
+        illegal_option("buffer size must be greater than 0.");
     }
     switch (bufsize[l - 1]) {
         case 'M':
@@ -122,10 +140,13 @@ void set_debug_option(options *opts) {
 
 void options_parse(options *opts, int argc, char *argv[]) {
     int opt;
-    while ((opt = getopt(argc, argv, "s:f:b:h:p:t:v:d")) != -1) {
+    while ((opt = getopt(argc, argv, "s:f:b:B:h:p:t:v:d")) != -1) {
         switch (opt) {
-            case 'b':
+            case 'B':
                 set_byterate_option(opts, optarg);
+                break;
+            case 'b':
+                set_bitrate_option(opts, optarg);
                 break;
             case 's':
                 set_bufsize_option(opts, optarg);
