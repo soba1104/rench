@@ -1,9 +1,10 @@
 INCLUDES = rench.h
+OBJS = rench.o options.o producer.o consumer.o buffer.o
 
 all: rench
 
 %.o: %.c $(INCLUDES)
 	gcc -c -o $@ $<
 
-rench: rench.o options.o
-	gcc rench.o options.o -o rench
+rench: $(OBJS)
+	gcc $(OBJS) -o rench
