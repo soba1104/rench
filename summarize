@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+# coding: utf-8
+
+require 'optparse'
+require 'gruff'
+
+opt = OptionParser.new()
+options = {}
+opt.on('-o output', '(必須)出力先のパス') {|v| options[:output] = v}
+opt.on('-i input', '(必須)入力ファイルのパス') {|v| options[:input] = v}
+opt.on('-f font', 'フォントファイルのパス') {|v| options[:font] = v}
+opt.on('-t title', 'グラフのタイトル') {|v| options[:title] = v}
+opt.parse!(ARGV)
+
+output = options[:output]
+input = options[:input]
+font = options[:font]
+title = options[:title] || 'summary'
+
+if output.nil?
+	STDERR.puts("output path is not given.")
+	exit(1)
+end
+
+if input.nil?
+	STDERR.puts("input file is not given.")
+	exit(1)
+end
+
+unless File.exist?(input)
+	STDERR.puts("#{input} does not exist.")
+	exit(1)
+end
+
+if File.exist?(output)
+	STDERR.puts("#{output} already exist.")
+	exit(1)
+end
+
+counts = Hash.new(0)
+File.read(input).each_line do |line|
+    next unless line =~ /unavailable/
+    cols = line.split(' ')
+    time = Time.at(cols[0].to_i)
+    duration = cols[2]
+    counts[time] += 1
+end
+
+counts.each do |time, count|
+    puts "#{time} #{count}"
+end
+
+base = counts.first[0].to_i
+g = Gruff::Line.new
+g.title = title
+g.font = font if font
+g.data('count', counts.values)
+g.minimum_value = 0
+g.y_axis_increment = 1
+counts.keys.each_with_index{|k, i| g.labels[i] = (k.to_i - base).to_s}
+g.write(output)
