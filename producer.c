@@ -42,7 +42,7 @@ void *producer_main(void *ptr) {
         ret = fops_read(fops, localbuf, toread);
         if (ret > 0) {
             if (debug) {
-                fprintf(stdout, "read complete %dbytes\n", ret);
+                fprintf(stdout, "read complete %d bytes\n", ret);
             }
             buffer_produce(buf, ret);
         } else if (!ret) {

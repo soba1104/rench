@@ -1,5 +1,6 @@
 #include "rench.h"
 #include <unistd.h>
+#include <time.h>
 
 void *consumer_main(void *ptr) {
     consumer_args *args = ptr;
@@ -10,13 +11,13 @@ void *consumer_main(void *ptr) {
     uint64_t consumed = 0;
 
     while (true) {
-        uint64_t time;
-        bool consumable = buffer_wait_consumable(buf, byterate, &time);
+        uint64_t t;
+        bool consumable = buffer_wait_consumable(buf, byterate, &t);
         if (init) {
-            fprintf(stdout, "initialize %lluusec\n", time);
+            fprintf(stdout, "%lu initialize %llu usec\n", time(NULL), t);
             init = false;
-        } else if (time > 0) {
-            fprintf(stdout, "unavailable %lluusec\n", time);
+        } else if (t > 0) {
+            fprintf(stdout, "%lu unavailable %llu usec\n", time(NULL), t);
         } else if (debug) {
             fprintf(stdout, "available\n");
         }
@@ -26,7 +27,7 @@ void *consumer_main(void *ptr) {
         buffer_consume(buf, byterate);
         consumed += byterate;
         if (debug) {
-            fprintf(stderr, "consumed %llubytes\n", consumed);
+            fprintf(stderr, "consumed %llu bytes\n", consumed);
         }
         sleep(1);
     }
