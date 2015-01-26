@@ -31,7 +31,7 @@ typedef struct __buffer {
     pthread_cond_t consumable_cond;
     pthread_cond_t producible_cond;
     bool consume_end;
-    bool eof;
+    bool produce_end;
 } buffer;
 
 typedef struct __fops {
@@ -78,7 +78,7 @@ void producer_init_args(producer_args *args, buffer *buf, uint32_t unit, char *f
 
 void buffer_init(buffer *buf, uint32_t size);
 void buffer_free(buffer *buf);
-void buffer_eof(buffer *buf);
+void buffer_produce_end(buffer *buf);
 void buffer_consume_end(buffer *buf);
 bool buffer_wait_producible(buffer *buf);
 void buffer_produce(buffer *buf, uint32_t size);

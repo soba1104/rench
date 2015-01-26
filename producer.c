@@ -51,7 +51,7 @@ void *producer_main(void *ptr) {
             buffer_produce(buf, ret);
         } else if (!ret) {
             if (debug) {
-                fprintf(stdout, "eof\n");
+                fprintf(stdout, "produce end\n");
             }
             goto out;
         } else {
@@ -61,7 +61,7 @@ void *producer_main(void *ptr) {
     }
 
 out:
-    buffer_eof(buf);
+    buffer_produce_end(buf);
     fops_close(fops);
     if (localbuf) {
         free(localbuf);

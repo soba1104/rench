@@ -5,7 +5,7 @@
 void buffer_init(buffer *buf, uint32_t size) {
     buf->size = size;
     buf->idx = 0;
-    buf->eof = false;
+    buf->produce_end = false;
     buf->consume_end = false;
     pthread_mutex_init(&buf->mutex, NULL);
     pthread_cond_init(&buf->producible_cond, NULL);
@@ -23,9 +23,9 @@ void buffer_consume_end(buffer *buf) {
     pthread_mutex_unlock(&buf->mutex);
 }
 
-void buffer_eof(buffer *buf) {
+void buffer_produce_end(buffer *buf) {
     pthread_mutex_lock(&buf->mutex);
-    buf->eof = true;
+    buf->produce_end = true;
     pthread_cond_signal(&buf->consumable_cond);
     pthread_mutex_unlock(&buf->mutex);
 }
@@ -73,7 +73,7 @@ bool buffer_wait_consumable(buffer *buf, uint32_t size, uint64_t *time) {
         if (buf->idx >= size) {
             consumable = true;
             break;
-        } else if (buf->eof) {
+        } else if (buf->produce_end) {
             consumable = false;
             break;
         } else {
