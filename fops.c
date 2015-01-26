@@ -100,6 +100,7 @@ fops *fops_gfapi_new(char *host, int port, char *volume, char *path) {
     if (!fops_gfapi) {
         goto err;
     }
+    state = (fops_gfapi_state*)(fops_gfapi + 1);
     fops_gfapi->open = fops_gfapi_open;
     fops_gfapi->read = fops_gfapi_read;
     fops_gfapi->close = fops_gfapi_close;
