@@ -7,4 +7,4 @@ all: rench
 	gcc -c -o $@ $<
 
 rench: $(OBJS)
-	gcc $(OBJS) -o rench
+	gcc $(OBJS) -o rench -lpthread

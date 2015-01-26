@@ -14,10 +14,10 @@ void *consumer_main(void *ptr) {
         uint64_t t;
         bool consumable = buffer_wait_consumable(buf, byterate, &t);
         if (init) {
-            fprintf(stdout, "%lu initialize %llu usec\n", time(NULL), t);
+            fprintf(stdout, "%ld initialize %" PRIu64 "usec\n", time(NULL), t);
             init = false;
         } else if (t > 0) {
-            fprintf(stdout, "%lu unavailable %llu usec\n", time(NULL), t);
+            fprintf(stdout, "%ld unavailable %" PRIu64 "usec\n", time(NULL), t);
         } else if (debug) {
             fprintf(stdout, "available\n");
         }
@@ -27,7 +27,7 @@ void *consumer_main(void *ptr) {
         buffer_consume(buf, byterate);
         consumed += byterate;
         if (debug) {
-            fprintf(stderr, "consumed %llu bytes\n", consumed);
+            fprintf(stderr, "consumed %" PRIu64 "bytes\n", consumed);
         }
         sleep(1);
     }
