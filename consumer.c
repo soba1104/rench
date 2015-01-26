@@ -6,7 +6,8 @@ void *consumer_main(void *ptr) {
     consumer_args *args = ptr;
     buffer *buf = args->buf;
     uint32_t byterate = args->byterate;
-    int i;
+    uint32_t count = args->count;
+    int i, c = 0;
     bool init = true, debug = args->debug;
     uint64_t consumed = 0;
 
@@ -14,6 +15,7 @@ void *consumer_main(void *ptr) {
         uint64_t t;
         time_t s = time(NULL);
         bool consumable = buffer_wait_consumable(buf, byterate, &t);
+        c++;
         if (init) {
             fprintf(stdout, "%ld initialize %" PRIu64 "usec\n", s, t);
             init = false;
@@ -34,8 +36,9 @@ void *consumer_main(void *ptr) {
     }
 }
 
-void consumer_init_args(consumer_args *args, buffer *buf, uint32_t byterate, bool debug) {
+void consumer_init_args(consumer_args *args, buffer *buf, uint32_t byterate, uint32_t count, bool debug) {
     args->buf = buf;
     args->byterate = byterate;
+    args->count = count;
     args->debug = debug;
 }

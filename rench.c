@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 
     buffer_init(&buf, opts.bufsize);
     producer_init_args(&pargs, &buf, opts.unit, opts.file, fops, opts.debug);
-    consumer_init_args(&cargs, &buf, opts.byterate, opts.debug);
+    consumer_init_args(&cargs, &buf, opts.byterate, opts.count, opts.debug);
 
     pthread_create(&producer_thread, NULL, producer_main, &pargs);
     pthread_create(&consumer_thread, NULL, consumer_main, &cargs);

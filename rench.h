@@ -15,6 +15,7 @@ typedef struct __options {
     uint32_t byterate;
     uint32_t bufsize;
     uint32_t unit;
+    uint32_t count;
     char *file;
     char *host;
     char *volume;
@@ -43,6 +44,7 @@ typedef struct __fops {
 typedef struct __consumer_args {
     buffer *buf;
     uint32_t byterate;
+    uint32_t count;
     bool debug;
 } consumer_args;
 
@@ -68,7 +70,7 @@ void options_validate(options *opts);
 void options_free(options *opts);
 
 void *consumer_main(void *arg);
-void consumer_init_args(consumer_args *args, buffer *buf, uint32_t byterate, bool debug);
+void consumer_init_args(consumer_args *args, buffer *buf, uint32_t byterate, uint32_t count, bool debug);
 
 void *producer_main(void *ptr);
 void producer_init_args(producer_args *args, buffer *buf, uint32_t unit, char *file, fops *fops, bool debug);
