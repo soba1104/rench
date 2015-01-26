@@ -34,8 +34,12 @@ void *producer_main(void *ptr) {
     while (true) {
         uint32_t bufidx;
         int toread, ret;
+        bool producible;
 
-        buffer_wait_producible(buf);
+        producible = buffer_wait_producible(buf);
+        if (!producible) {
+            goto out;
+        }
         bufidx = buffer_get_idx(buf);
         toread = MIN(unit, bufsize - bufidx);
         assert(toread > 0);

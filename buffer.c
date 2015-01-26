@@ -6,6 +6,7 @@ void buffer_init(buffer *buf, uint32_t size) {
     buf->size = size;
     buf->idx = 0;
     buf->eof = false;
+    buf->consume_end = false;
     pthread_mutex_init(&buf->mutex, NULL);
     pthread_cond_init(&buf->producible_cond, NULL);
     pthread_cond_init(&buf->consumable_cond, NULL);
@@ -15,6 +16,13 @@ void buffer_free(buffer *buf) {
     // nothing to do
 }
 
+void buffer_consume_end(buffer *buf) {
+    pthread_mutex_lock(&buf->mutex);
+    buf->consume_end = true;
+    pthread_cond_signal(&buf->producible_cond);
+    pthread_mutex_unlock(&buf->mutex);
+}
+
 void buffer_eof(buffer *buf) {
     pthread_mutex_lock(&buf->mutex);
     buf->eof = true;
@@ -22,14 +30,27 @@ void buffer_eof(buffer *buf) {
     pthread_mutex_unlock(&buf->mutex);
 }
 
-void buffer_wait_producible(buffer *buf) {
+bool buffer_wait_producible(buffer *buf) {
+    bool producible;
+
     pthread_mutex_lock(&buf->mutex);
     assert(buf->idx <= buf->size);
-    if (buf->idx == buf->size) { // buffer full
-        pthread_cond_wait(&buf->producible_cond, &buf->mutex);
+    if (buf->consume_end) {
+        producible = false;
+    } else {
+        if (buf->idx == buf->size) { // buffer full
+            pthread_cond_wait(&buf->producible_cond, &buf->mutex);
+            producible = !buf->consume_end;
+        } else {
+            producible = true;
+        }
     }
-    assert(buf->idx < buf->size);
+    if (producible) {
+        assert(buf->idx < buf->size);
+    }
     pthread_mutex_unlock(&buf->mutex);
+
+    return producible;
 }
 
 void buffer_produce(buffer *buf, uint32_t size) {

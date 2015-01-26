@@ -15,7 +15,6 @@ void *consumer_main(void *ptr) {
         uint64_t t;
         time_t s = time(NULL);
         bool consumable = buffer_wait_consumable(buf, byterate, &t);
-        c++;
         if (init) {
             fprintf(stdout, "%ld initialize %" PRIu64 "usec\n", s, t);
             init = false;
@@ -31,6 +30,14 @@ void *consumer_main(void *ptr) {
         consumed += byterate;
         if (debug) {
             fprintf(stderr, "consumed %" PRIu64 "bytes\n", consumed);
+        }
+        c++;
+        if (count > 0 && c >= count) {
+            if (debug) {
+                fprintf(stderr, "consume end\n");
+            }
+            buffer_consume_end(buf);
+            return NULL;
         }
         sleep(1);
     }

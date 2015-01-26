@@ -30,6 +30,7 @@ typedef struct __buffer {
     pthread_mutex_t mutex;
     pthread_cond_t consumable_cond;
     pthread_cond_t producible_cond;
+    bool consume_end;
     bool eof;
 } buffer;
 
@@ -78,7 +79,8 @@ void producer_init_args(producer_args *args, buffer *buf, uint32_t unit, char *f
 void buffer_init(buffer *buf, uint32_t size);
 void buffer_free(buffer *buf);
 void buffer_eof(buffer *buf);
-void buffer_wait_producible(buffer *buf);
+void buffer_consume_end(buffer *buf);
+bool buffer_wait_producible(buffer *buf);
 void buffer_produce(buffer *buf, uint32_t size);
 bool buffer_wait_consumable(buffer *buf, uint32_t size, uint64_t *time);
 void buffer_consume(buffer *buf, uint32_t size);
