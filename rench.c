@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
                         "type = gfapi, host = %s, port = %d, volume = %s, file = %s, byterate = %u, unit = %u, bufsize = %u\n",
                         opts.host, opts.port, opts.volume, opts.file, opts.unit, opts.byterate, opts.bufsize);
             }
-            goto out;
+            break;
     }
     if (!fops) {
         fprintf(stderr, "failed to allocate fops\n");
