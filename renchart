@@ -63,9 +63,13 @@ avg = avg.map{|a| a /= 1000.0} if options[:sec]
 max = max.map{|m| m.ceil}
 avg = avg.map{|a| a.ceil}
 labels = {}
-data.keys.each_with_index{|k, i| labels[i] = (k.to_i - base).to_s}
+label_span = data.size / 15 + 1
+data.keys.each_with_index{|k, i|
+    next unless (i % label_span) == 0
+    labels[i] = (k.to_i - base).to_s
+}
 
-g = Gruff::Line.new
+g = Gruff::Line.new()
 g.title = title
 g.font = font if font
 g.data('count', count) if options[:count] || options[:all]
