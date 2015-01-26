@@ -28,7 +28,12 @@ int main(int argc, char *argv[]) {
             }
             break;
         case GFAPI:
-            fprintf(stderr, "todo: not implemented.\n");
+            fops = fops_gfapi_new(opts.host, opts.port, opts.volume, opts.file);
+            if (opts.debug) {
+                fprintf(stdout,
+                        "type = gfapi, host = %s, port = %d, volume = %s, file = %s, byterate = %u, unit = %u, bufsize = %u\n",
+                        opts.host, opts.port, opts.volume, opts.file, opts.unit, opts.byterate, opts.bufsize);
+            }
             goto out;
     }
     if (!fops) {

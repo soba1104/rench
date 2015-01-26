@@ -37,6 +37,7 @@ typedef struct __fops {
     bool (*open)(void*);
     int (*read)(void*, void*, int);
     void (*close)(void*);
+    void (*free)(void*);
 } fops;
 
 typedef struct __consumer_args {
@@ -58,6 +59,7 @@ int fops_read(fops *fops, void *buf, int len);
 void fops_close(fops *fops);
 void fops_free(fops *fops);
 fops *fops_posix_new(char *path);
+fops *fops_gfapi_new(char *host, int port, char *volume, char *path);
 
 void options_show_help(void);
 void options_init(options *opts);
