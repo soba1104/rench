@@ -10,15 +10,15 @@ void *consumer_main(void *ptr) {
     bool init = true, debug = args->debug;
     uint64_t consumed = 0;
 
-    fprintf(stdout, "%ld start\n", time(NULL));
     while (true) {
         uint64_t t;
+        time_t s = time(NULL);
         bool consumable = buffer_wait_consumable(buf, byterate, &t);
         if (init) {
-            fprintf(stdout, "%ld initialize %" PRIu64 "usec\n", time(NULL), t);
+            fprintf(stdout, "%ld initialize %" PRIu64 "usec\n", s, t);
             init = false;
         } else if (t > 0) {
-            fprintf(stdout, "%ld unavailable %" PRIu64 "usec\n", time(NULL), t);
+            fprintf(stdout, "%ld unavailable %" PRIu64 "usec\n", s, t);
         } else if (debug) {
             fprintf(stdout, "available\n");
         }

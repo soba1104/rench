@@ -47,20 +47,14 @@ max = Hash.new(0)
 avg = Hash.new(0)
 
 data = {}
-base = nil
 File.read(input).each_line do |line|
+    next unless line =~ /unavailable/
     cols = line.split(' ')
-    case line
-    when /start/
-        time = Time.at(cols[0].to_i)
-        base = base ? [base, time.to_i].min : time.to_i
-    when /unavailable/
-        time = Time.at(cols[0].to_i)
-        duration = cols[2].to_i
-        (data[time] ||= []).push(duration)
-    end
+    time = Time.at(cols[0].to_i)
+    duration = cols[2].to_i
+    (data[time] ||= []).push(duration)
 end
-base = data.first.first.to_i unless base
+base = data.first.first.to_i
 count = data.values.map{|v| v.size}
 max = data.values.map{|v| v.max / 1000.0}
 avg = data.values.map{|v| v.inject(0){|s, d| s + d} / v.size / 1000.0}
