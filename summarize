@@ -58,4 +58,5 @@ g.data('count', counts.values)
 g.minimum_value = 0
 g.y_axis_increment = 1
 counts.keys.each_with_index{|k, i| g.labels[i] = (k.to_i - base).to_s}
+g.theme_pastel()
 g.write(output)
