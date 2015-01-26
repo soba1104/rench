@@ -10,6 +10,9 @@ opt.on('-o output', '(必須)出力先のパス') {|v| options[:output] = v}
 opt.on('-i input', '(必須)入力ファイルのパス') {|v| options[:input] = v}
 opt.on('-f font', 'フォントファイルのパス') {|v| options[:font] = v}
 opt.on('-t title', 'グラフのタイトル') {|v| options[:title] = v}
+opt.on('--count', '遅延した回数を計算する') {|v| options[:count] = true}
+opt.on('--max', '遅延の最大ミリ秒を計算する') {|v| options[:max] = true}
+opt.on('--avg', '遅延の平均ミリ秒を計算する') {|v| options[:avg] = true}
 opt.parse!(ARGV)
 
 output = options[:output]
@@ -38,25 +41,31 @@ if File.exist?(output)
 end
 
 counts = Hash.new(0)
+max = Hash.new(0)
+avg = Hash.new(0)
+
+data = {}
 File.read(input).each_line do |line|
     next unless line =~ /unavailable/
     cols = line.split(' ')
     time = Time.at(cols[0].to_i)
-    duration = cols[2]
-    counts[time] += 1
+    duration = cols[2].to_i / 1000
+    (data[time] ||= []).push(duration)
 end
+base = data.first.first.to_i
+count = data.values.map{|v| v.size}
+max = data.values.map{|v| v.max}
+avg = data.values.map{|v| v.inject(0){|s, d| s + d} / v.size}
+labels = {}
+data.keys.each_with_index{|k, i| labels[i] = (k.to_i - base).to_s}
 
-counts.each do |time, count|
-    puts "#{time} #{count}"
-end
-
-base = counts.first[0].to_i
 g = Gruff::Line.new
 g.title = title
 g.font = font if font
-g.data('count', counts.values)
+g.data('count', count) if options[:count]
+g.data('max', max) if options[:max]
+g.data('avg', avg) if options[:avg]
+g.labels = labels
 g.minimum_value = 0
-g.y_axis_increment = 1
-counts.keys.each_with_index{|k, i| g.labels[i] = (k.to_i - base).to_s}
 g.theme_pastel()
 g.write(output)
