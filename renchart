@@ -10,9 +10,11 @@ opt.on('-o output', '(必須)出力先のパス') {|v| options[:output] = v}
 opt.on('-i input', '(必須)入力ファイルのパス') {|v| options[:input] = v}
 opt.on('-f font', 'フォントファイルのパス') {|v| options[:font] = v}
 opt.on('-t title', 'グラフのタイトル') {|v| options[:title] = v}
+opt.on('-s', '遅延を秒単位で集計するか(デフォルトだとミリ秒単位)'){|v| options[:sec] = true}
 opt.on('--count', '遅延した回数を計算する') {|v| options[:count] = true}
 opt.on('--max', '遅延の最大ミリ秒を計算する') {|v| options[:max] = true}
 opt.on('--avg', '遅延の平均ミリ秒を計算する') {|v| options[:avg] = true}
+opt.on('--all', '全てのチャートを描画する') {|v| options[:all] = true}
 opt.parse!(ARGV)
 
 output = options[:output]
@@ -21,23 +23,23 @@ font = options[:font]
 title = options[:title] || 'summary'
 
 if output.nil?
-	STDERR.puts("output path is not given.")
-	exit(1)
+    STDERR.puts("output path is not given.")
+    exit(1)
 end
 
 if input.nil?
-	STDERR.puts("input file is not given.")
-	exit(1)
+    STDERR.puts("input file is not given.")
+    exit(1)
 end
 
 unless File.exist?(input)
-	STDERR.puts("#{input} does not exist.")
-	exit(1)
+    STDERR.puts("#{input} does not exist.")
+    exit(1)
 end
 
 if File.exist?(output)
-	STDERR.puts("#{output} already exist.")
-	exit(1)
+    STDERR.puts("#{output} already exist.")
+    exit(1)
 end
 
 counts = Hash.new(0)
@@ -50,6 +52,7 @@ File.read(input).each_line do |line|
     cols = line.split(' ')
     time = Time.at(cols[0].to_i)
     duration = cols[2].to_i / 1000
+    duration /= 1000 if options[:sec]
     (data[time] ||= []).push(duration)
 end
 base = data.first.first.to_i
@@ -62,9 +65,9 @@ data.keys.each_with_index{|k, i| labels[i] = (k.to_i - base).to_s}
 g = Gruff::Line.new
 g.title = title
 g.font = font if font
-g.data('count', count) if options[:count]
-g.data('max', max) if options[:max]
-g.data('avg', avg) if options[:avg]
+g.data('count', count) if options[:count] || options[:all]
+g.data('max', max) if options[:max] || options[:all]
+g.data('avg', avg) if options[:avg] || options[:all]
 g.labels = labels
 g.minimum_value = 0
 g.theme_pastel()
