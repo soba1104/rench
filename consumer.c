@@ -10,6 +10,7 @@ void *consumer_main(void *ptr) {
     bool init = true, debug = args->debug;
     uint64_t consumed = 0;
 
+    fprintf(stdout, "%ld start\n", time(NULL));
     while (true) {
         uint64_t t;
         bool consumable = buffer_wait_consumable(buf, byterate, &t);
