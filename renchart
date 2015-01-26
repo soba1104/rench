@@ -51,14 +51,17 @@ File.read(input).each_line do |line|
     next unless line =~ /unavailable/
     cols = line.split(' ')
     time = Time.at(cols[0].to_i)
-    duration = cols[2].to_i / 1000
-    duration /= 1000 if options[:sec]
+    duration = cols[2].to_i
     (data[time] ||= []).push(duration)
 end
 base = data.first.first.to_i
 count = data.values.map{|v| v.size}
-max = data.values.map{|v| v.max}
-avg = data.values.map{|v| v.inject(0){|s, d| s + d} / v.size}
+max = data.values.map{|v| v.max / 1000.0}
+avg = data.values.map{|v| v.inject(0){|s, d| s + d} / v.size / 1000.0}
+max = max.map{|m| m /= 1000.0} if options[:sec]
+avg = avg.map{|a| a /= 1000.0} if options[:sec]
+max = max.map{|m| m.ceil}
+avg = avg.map{|a| a.ceil}
 labels = {}
 data.keys.each_with_index{|k, i| labels[i] = (k.to_i - base).to_s}
 
