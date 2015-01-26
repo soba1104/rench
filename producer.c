@@ -49,7 +49,6 @@ void *producer_main(void *ptr) {
             if (debug) {
                 fprintf(stdout, "eof\n");
             }
-            buffer_eof(buf);
             goto out;
         } else {
             perror("failed to read: ");
@@ -58,6 +57,7 @@ void *producer_main(void *ptr) {
     }
 
 out:
+    buffer_eof(buf);
     fops_close(fops);
     if (localbuf) {
         free(localbuf);
