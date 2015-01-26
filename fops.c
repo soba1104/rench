@@ -65,7 +65,7 @@ bool fops_gfapi_open(void *arg) {
     glfs_t *fs = state->fs;
     char *path = state->path;
 
-    if (!glfs_init(fs)) {
+    if (glfs_init(fs) != 0) {
         return false;
     }
     state->fd = glfs_open(fs, path, O_RDONLY); // FIXME
