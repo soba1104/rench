@@ -61,9 +61,6 @@ void set_byterate_option(options *opts, char *byterate) {
 void set_bitrate_option(options *opts, char *bitrate) {
     int l = strlen(bitrate);
     int b = atoi(bitrate);
-    if (b < 8) {
-        illegal_option("bitrate must be greater than or equal to 8.");
-    }
     switch (bitrate[l - 1]) {
         case 'M':
         case 'm':
@@ -71,6 +68,9 @@ void set_bitrate_option(options *opts, char *bitrate) {
         case 'k':
         case 'K':
             b *= 1024;
+    }
+    if (b < 8) {
+        illegal_option("bitrate must be greater than or equal to 8.");
     }
     opts->byterate = b / 8;
 }
