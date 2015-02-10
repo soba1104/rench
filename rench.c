@@ -23,16 +23,16 @@ int main(int argc, char *argv[]) {
             fops = fops_posix_new(opts.file);
             if (opts.debug) {
                 fprintf(stdout,
-                        "type = posix, file = %s, byterate = %u, upper = %u, bufsize = %u\n",
-                        opts.file, opts.upper, opts.byterate, opts.bufsize);
+                        "type = posix, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u\n",
+                        opts.file, opts.upper, opts.lower, opts.byterate, opts.bufsize);
             }
             break;
         case GFAPI:
             fops = fops_gfapi_new(opts.host, opts.port, opts.volume, opts.file);
             if (opts.debug) {
                 fprintf(stdout,
-                        "type = gfapi, host = %s, port = %d, volume = %s, file = %s, byterate = %u, upper = %u, bufsize = %u\n",
-                        opts.host, opts.port, opts.volume, opts.file, opts.upper, opts.byterate, opts.bufsize);
+                        "type = gfapi, host = %s, port = %d, volume = %s, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u\n",
+                        opts.host, opts.port, opts.volume, opts.file, opts.upper, opts.lower, opts.byterate, opts.bufsize);
             }
             break;
     }
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
         goto out;
     }
 
-    buffer_init(&buf, opts.bufsize);
+    buffer_init(&buf, opts.bufsize, opts.lower);
     producer_init_args(&pargs, &buf, opts.upper, opts.file, fops, opts.debug);
     consumer_init_args(&cargs, &buf, opts.byterate, opts.count, opts.debug);
 

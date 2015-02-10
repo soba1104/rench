@@ -2,8 +2,9 @@
 #include <assert.h>
 #include <sys/time.h>
 
-void buffer_init(buffer *buf, uint32_t size) {
+void buffer_init(buffer *buf, uint32_t size, uint32_t lower) {
     buf->size = size;
+    buf->lower = lower;
     buf->idx = 0;
     buf->produce_end = false;
     buf->consume_end = false;

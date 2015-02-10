@@ -27,6 +27,7 @@ typedef struct __options {
 
 typedef struct __buffer {
     uint32_t size;
+    uint32_t lower;
     uint32_t idx;
     pthread_mutex_t mutex;
     pthread_cond_t consumable_cond;
@@ -77,7 +78,7 @@ void consumer_init_args(consumer_args *args, buffer *buf, uint32_t byterate, uin
 void *producer_main(void *ptr);
 void producer_init_args(producer_args *args, buffer *buf, uint32_t upper, char *file, fops *fops, bool debug);
 
-void buffer_init(buffer *buf, uint32_t size);
+void buffer_init(buffer *buf, uint32_t size, uint32_t lower);
 void buffer_free(buffer *buf);
 void buffer_produce_end(buffer *buf);
 void buffer_consume_end(buffer *buf);
