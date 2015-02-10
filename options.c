@@ -248,6 +248,12 @@ void options_validate(options *opts) {
             illegal_option("volume name is not given.");
         }
     }
+    if (opts->upper > opts->bufsize) {
+        illegal_option("read unit upper bound should not be greater than buffer size.");
+    }
+    if (opts->lower > opts->upper) {
+        illegal_option("read unit lower bound should not be greater than upper bound.");
+    }
 }
 
 void options_free(options *opts) {
