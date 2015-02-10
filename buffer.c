@@ -36,18 +36,19 @@ bool buffer_wait_producible(buffer *buf) {
 
     pthread_mutex_lock(&buf->mutex);
     assert(buf->idx <= buf->size);
-    if (buf->consume_end) {
-        producible = false;
-    } else {
-        if (buf->idx == buf->size) { // buffer full
-            pthread_cond_wait(&buf->producible_cond, &buf->mutex);
-            producible = !buf->consume_end;
-        } else {
+    while (true) {
+        if ((buf->idx + buf->lower) <= buf->size) {
             producible = true;
+            break;
+        } else if (buf->consume_end) {
+            producible = false;
+            break;
+        } else {
+            pthread_cond_wait(&buf->producible_cond, &buf->mutex);
         }
     }
     if (producible) {
-        assert(buf->idx < buf->size);
+        assert((buf->idx + buf->lower) <= buf->size);
     }
     pthread_mutex_unlock(&buf->mutex);
 
