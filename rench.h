@@ -15,6 +15,7 @@ typedef struct __options {
     uint32_t byterate;
     uint32_t bufsize;
     uint32_t upper;
+    uint32_t lower;
     uint32_t count;
     char *file;
     char *host;

@@ -16,6 +16,7 @@ void options_show_help(void) {
     fprintf(stdout, "-b bitrate:   bitrate. default 1M.\n");
     fprintf(stdout, "-B byterate:  byterate. default 128K.\n");
     fprintf(stdout, "-u upper:     maximum bytes per read. default 128K.\n");
+    fprintf(stdout, "-l lower:     minimum bytes per read. default 128K.\n");
     fprintf(stdout, "-t type:      fops type(posix or gfapi). default posix.\n");
     fprintf(stdout, "-c count:     count to read. read entire file by default\n");
     fprintf(stdout, "-d:           debug mode. default off.\n");
@@ -32,6 +33,7 @@ void options_init(options *opts) {
     opts->byterate = DEFAULT_BYTERATE;
     opts->bufsize = DEFAULT_BUFSIZE;
     opts->upper = DEFAULT_BYTERATE;
+    opts->lower = DEFAULT_BYTERATE;
     opts->file = NULL;
     opts->host = NULL;
     opts->port = -1;
@@ -118,6 +120,23 @@ void set_upper_option(options *opts, char *upper) {
     opts->upper = u;
 }
 
+void set_lower_option(options *opts, char *lower) {
+    int l = strlen(lower);
+    int u = atoi(lower);
+    if (u <= 0) {
+        illegal_option("lower bound must be greater than 0.");
+    }
+    switch (lower[l - 1]) {
+        case 'M':
+        case 'm':
+            u *= 1024;
+        case 'k':
+        case 'K':
+            u *= 1024;
+    }
+    opts->lower = u;
+}
+
 void set_file_option(options *opts, char *file) {
     int l = strlen(file);
     if (l == 0) {
@@ -188,6 +207,9 @@ void options_parse(options *opts, int argc, char *argv[]) {
                 break;
             case 'u':
                 set_upper_option(opts, optarg);
+                break;
+            case 'l':
+                set_lower_option(opts, optarg);
                 break;
             case 'f':
                 set_file_option(opts, optarg);
