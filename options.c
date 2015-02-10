@@ -191,7 +191,7 @@ void set_debug_option(options *opts) {
 
 void options_parse(options *opts, int argc, char *argv[]) {
     int opt;
-    while ((opt = getopt(argc, argv, "s:u:f:b:B:h:p:t:v:c:d")) != -1) {
+    while ((opt = getopt(argc, argv, "s:u:l:f:b:B:h:p:t:v:c:d")) != -1) {
         switch (opt) {
             case 'B':
                 set_byterate_option(opts, optarg);
