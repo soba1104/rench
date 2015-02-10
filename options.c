@@ -15,7 +15,7 @@ void options_show_help(void) {
     fprintf(stdout, "-s bufsize:   buffer size. default 10M.\n");
     fprintf(stdout, "-b bitrate:   bitrate. default 1M.\n");
     fprintf(stdout, "-B byterate:  byterate. default 128K.\n");
-    fprintf(stdout, "-u unit:      bytes per read. default 128K.\n");
+    fprintf(stdout, "-u upper:     maximum bytes per read. default 128K.\n");
     fprintf(stdout, "-t type:      fops type(posix or gfapi). default posix.\n");
     fprintf(stdout, "-c count:     count to read. read entire file by default\n");
     fprintf(stdout, "-d:           debug mode. default off.\n");
@@ -31,7 +31,7 @@ void options_show_help(void) {
 void options_init(options *opts) {
     opts->byterate = DEFAULT_BYTERATE;
     opts->bufsize = DEFAULT_BUFSIZE;
-    opts->unit = DEFAULT_BYTERATE;
+    opts->upper = DEFAULT_BYTERATE;
     opts->file = NULL;
     opts->host = NULL;
     opts->port = -1;
@@ -101,13 +101,13 @@ void set_count_option(options *opts, char *count) {
     opts->count = c;
 }
 
-void set_unit_option(options *opts, char *unit) {
-    int l = strlen(unit);
-    int u = atoi(unit);
+void set_upper_option(options *opts, char *upper) {
+    int l = strlen(upper);
+    int u = atoi(upper);
     if (u <= 0) {
-        illegal_option("unit must be greater than 0.");
+        illegal_option("upper bound must be greater than 0.");
     }
-    switch (unit[l - 1]) {
+    switch (upper[l - 1]) {
         case 'M':
         case 'm':
             u *= 1024;
@@ -115,7 +115,7 @@ void set_unit_option(options *opts, char *unit) {
         case 'K':
             u *= 1024;
     }
-    opts->unit = u;
+    opts->upper = u;
 }
 
 void set_file_option(options *opts, char *file) {
@@ -187,7 +187,7 @@ void options_parse(options *opts, int argc, char *argv[]) {
                 set_count_option(opts, optarg);
                 break;
             case 'u':
-                set_unit_option(opts, optarg);
+                set_upper_option(opts, optarg);
                 break;
             case 'f':
                 set_file_option(opts, optarg);

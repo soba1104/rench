@@ -14,7 +14,7 @@ void *producer_main(void *ptr) {
     char *localbuf = NULL;
     buffer *buf = args->buf;
     uint32_t bufsize = buffer_get_size(buf);
-    uint32_t unit = args->unit;
+    uint32_t upper = args->upper;
     char *file = args->file;
     fops *fops = args->fops;
     bool debug = args->debug;
@@ -41,7 +41,7 @@ void *producer_main(void *ptr) {
             goto out;
         }
         bufidx = buffer_get_idx(buf);
-        toread = MIN(unit, bufsize - bufidx);
+        toread = MIN(upper, bufsize - bufidx);
         assert(toread > 0);
         ret = fops_read(fops, localbuf, toread);
         if (ret > 0) {
@@ -71,12 +71,12 @@ out:
 
 void producer_init_args(producer_args *args,
                         buffer *buf,
-                        uint32_t unit,
+                        uint32_t upper,
                         char *file,
                         fops *fops,
                         bool debug) {
     args->buf = buf;
-    args->unit = unit;
+    args->upper = upper;
     args->file = file;
     args->fops = fops;
     args->debug = debug;
