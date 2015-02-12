@@ -4,7 +4,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <glusterfs/api/glfs.h>
 
 typedef struct __fops_posix_state {
     char *path;
@@ -64,12 +63,7 @@ bool fops_gfapi_open(void *arg) {
     fops_gfapi_state *state = arg;
     glfs_t *fs = state->fs;
     char *path = state->path;
-
-    if (glfs_init(fs) != 0) {
-        return false;
-    }
     state->fd = glfs_open(fs, path, O_RDONLY); // FIXME
-
     return state->fd != NULL;
 }
 
@@ -86,13 +80,10 @@ void fops_gfapi_close(void *arg) {
 }
 
 void fops_gfapi_free(void *arg) {
-    fops_gfapi_state *state = arg;
-    if (state->fs) {
-        glfs_fini(state->fs);
-    }
+    // nothing to do
 }
 
-fops *fops_gfapi_new(char *host, int port, char *volume, char *path) {
+fops *fops_gfapi_new(glfs_t *fs, char *path) {
     fops *fops_gfapi;
     fops_gfapi_state *state;
 
@@ -108,11 +99,6 @@ fops *fops_gfapi_new(char *host, int port, char *volume, char *path) {
     fops_gfapi->state = state;
     state->path = path;
     state->fd = NULL;
-    state->fs = glfs_new(volume);
-    if (!state->fs) {
-        goto err;
-    }
-    glfs_set_volfile_server(state->fs, "tcp", host, port);
     return fops_gfapi;
 
 err:

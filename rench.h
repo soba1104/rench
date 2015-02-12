@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glusterfs/api/glfs.h>
 
 #define DEFAULT_BYTERATE (128 * 1024)
 #define DEFAULT_BUFSIZE (10 * 1024 * 1024)
@@ -75,7 +76,7 @@ int fops_read(fops *fops, void *buf, int len);
 void fops_close(fops *fops);
 void fops_free(fops *fops);
 fops *fops_posix_new(char *path);
-fops *fops_gfapi_new(char *host, int port, char *volume, char *path);
+fops *fops_gfapi_new(glfs_t *glfs, char *path);
 
 void options_show_help(void);
 void options_init(options *opts);

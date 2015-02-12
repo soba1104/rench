@@ -4,6 +4,7 @@ int main(int argc, char *argv[]) {
     options opts;
     fops *fops;
     task *tasks;
+    glfs_t *glfs = NULL;
     int ret = 0, i;
 
     if (argc == 1) {
@@ -24,7 +25,16 @@ int main(int argc, char *argv[]) {
             }
             break;
         case GFAPI:
-            fops = fops_gfapi_new(opts.host, opts.port, opts.volume, opts.file);
+            glfs = glfs_new(opts.volume);
+            if (!glfs) {
+                goto out;
+            }
+            glfs_set_volfile_server(glfs, "tcp", opts.host, opts.port);
+            if (glfs_init(glfs) != 0) {
+                goto out;
+            }
+
+            fops = fops_gfapi_new(glfs, opts.file);
             if (opts.debug) {
                 fprintf(stdout,
                         "type = gfapi, host = %s, port = %d, volume = %s, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u, concurrency = %u\n",
@@ -56,6 +66,9 @@ int main(int argc, char *argv[]) {
     }
 
 out:
+    if (glfs) {
+        glfs_fini(glfs);
+    }
     if (tasks) {
         free(tasks);
     }
