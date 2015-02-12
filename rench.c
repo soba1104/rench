@@ -43,7 +43,8 @@ int main(int argc, char *argv[]) {
 
     for (i = 0; i < numfiles; i++) {
         task *t = &tasks[i];
-        if (!task_init(t, &opts, glfs)) {
+        char *f = argv[optind + i];
+        if (!task_init(f, t, &opts, glfs)) {
             fprintf(stderr, "failed to init task\n");
         }
         task_run(t);

@@ -11,7 +11,6 @@ void illegal_option(char *errmsg) {
 
 void options_show_help(void) {
     fprintf(stdout, "--------------------- general options ---------------------\n");
-    fprintf(stdout, "-f path:        (requirement)target file path.\n");
     fprintf(stdout, "-s bufsize:     buffer size. default 10M.\n");
     fprintf(stdout, "-b bitrate:     bitrate. default 1M.\n");
     fprintf(stdout, "-B byterate:    byterate. default 128K.\n");
@@ -35,7 +34,6 @@ void options_init(options *opts) {
     opts->bufsize = DEFAULT_BUFSIZE;
     opts->upper = DEFAULT_BYTERATE;
     opts->lower = DEFAULT_BYTERATE;
-    opts->file = NULL;
     opts->host = NULL;
     opts->port = -1;
     opts->volume = NULL;
@@ -139,15 +137,6 @@ void set_lower_option(options *opts, char *lower) {
     opts->lower = u;
 }
 
-void set_file_option(options *opts, char *file) {
-    int l = strlen(file);
-    if (l == 0) {
-        illegal_option("invalid filepath.");
-    }
-    opts->file = malloc(l + 1);
-    strcpy(opts->file, file);
-}
-
 void set_concurrency_option(options *opts, char *concurrency) {
     int l = strlen(concurrency);
     int c = atoi(concurrency);
@@ -202,7 +191,7 @@ void set_debug_option(options *opts) {
 
 void options_parse(options *opts, int argc, char *argv[]) {
     int opt;
-    while ((opt = getopt(argc, argv, "s:u:l:f:b:B:h:p:t:v:c:C:d")) != -1) {
+    while ((opt = getopt(argc, argv, "s:u:l:b:B:h:p:t:v:c:C:d")) != -1) {
         switch (opt) {
             case 'B':
                 set_byterate_option(opts, optarg);
@@ -221,9 +210,6 @@ void options_parse(options *opts, int argc, char *argv[]) {
                 break;
             case 'l':
                 set_lower_option(opts, optarg);
-                break;
-            case 'f':
-                set_file_option(opts, optarg);
                 break;
             case 'C':
                 set_concurrency_option(opts, optarg);
@@ -248,9 +234,6 @@ void options_parse(options *opts, int argc, char *argv[]) {
 }
 
 void options_validate(options *opts) {
-    if (!opts->file) {
-        illegal_option("file is not given.");
-    }
     if (opts->type == GFAPI) {
         if (!opts->host) {
             illegal_option("hostname is not given.");
@@ -271,9 +254,6 @@ void options_validate(options *opts) {
 }
 
 void options_free(options *opts) {
-    if (opts->file) {
-        free(opts->file);
-    }
     if (opts->host) {
         free(opts->host);
     }

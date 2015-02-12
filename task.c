@@ -1,12 +1,12 @@
 #include "rench.h"
 
-bool task_init(task *t, options *opts, glfs_t *glfs) {
-    t->fops = fops_new(opts, glfs);
+bool task_init(char *file, task *t, options *opts, glfs_t *glfs) {
+    t->fops = fops_new(file, opts, glfs);
     if (!t->fops) {
         return false;
     }
     buffer_init(&t->buf, opts->bufsize, opts->lower);
-    producer_init_args(&t->pargs, &t->buf, opts->upper, opts->file, t->fops, opts->debug);
+    producer_init_args(&t->pargs, &t->buf, opts->upper, file, t->fops, opts->debug);
     consumer_init_args(&t->cargs, &t->buf, opts->byterate, opts->count, opts->debug);
     return true;
 }
