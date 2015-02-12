@@ -89,7 +89,7 @@ fops *fops_gfapi_new(glfs_t *fs, char *path) {
 
     fops_gfapi = malloc(sizeof(fops) + sizeof(fops_gfapi_state));
     if (!fops_gfapi) {
-        goto err;
+        return NULL;
     }
     state = (fops_gfapi_state*)(fops_gfapi + 1);
     fops_gfapi->open = fops_gfapi_open;
@@ -100,12 +100,6 @@ fops *fops_gfapi_new(glfs_t *fs, char *path) {
     state->path = path;
     state->fd = NULL;
     return fops_gfapi;
-
-err:
-    if (fops_gfapi) {
-        fops_free(fops_gfapi);
-    }
-    return NULL;
 }
 
 bool fops_open(fops *fops) {

@@ -2,7 +2,6 @@
 
 int main(int argc, char *argv[]) {
     options opts;
-    fops *fops;
     task *tasks;
     glfs_t *glfs = NULL;
     int ret = 0, i;
@@ -25,12 +24,6 @@ int main(int argc, char *argv[]) {
             goto out;
         }
     }
-    fops = fops_new(&opts, glfs);
-    if (!fops) {
-        fprintf(stderr, "failed to allocate fops\n");
-        ret = -1;
-        goto out;
-    }
     tasks = malloc(sizeof(task) * opts.concurrency);
     if (!tasks) {
         fprintf(stderr, "failed to allocate tasks\n");
@@ -41,12 +34,13 @@ int main(int argc, char *argv[]) {
 
     for (i = 0; i < opts.concurrency; i++) {
         task *t = &tasks[i];
-        task_init(t, &opts, fops);
+        if (!task_init(t, &opts, glfs)) {
+            fprintf(stderr, "failed to init task\n");
+        }
         task_run(t);
     }
     for (i = 0; i < opts.concurrency; i++) {
-        task *t = &tasks[i];
-        task_join(t);
+        task_join(&tasks[i]);
     }
 
 out:
@@ -54,9 +48,11 @@ out:
         glfs_fini(glfs);
     }
     if (tasks) {
+        for (i = 0; i < opts.concurrency; i++) {
+            task_free(&tasks[i]);
+        }
         free(tasks);
     }
-    fops_free(fops);
     options_free(&opts);
 
     return ret;

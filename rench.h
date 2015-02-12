@@ -69,6 +69,7 @@ typedef struct __task {
     producer_args pargs;
     consumer_args cargs;
     buffer buf;
+    fops *fops;
 } task;
 
 bool fops_open(fops *fops);
@@ -99,6 +100,7 @@ void buffer_consume(buffer *buf, uint32_t size);
 uint32_t buffer_get_size(buffer *buf);
 uint32_t buffer_get_idx(buffer *buf);
 
-void task_init(task *t, options *opts, fops *fops);
+bool task_init(task *t, options *opts, glfs_t *glfs);
 void task_run(task *t);
 void task_join(task *t);
+void task_free(task *t);
