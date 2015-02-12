@@ -20,7 +20,6 @@ typedef struct __options {
     uint32_t upper;
     uint32_t lower;
     uint32_t count;
-    uint32_t concurrency;
     char *host;
     char *volume;
     int port;

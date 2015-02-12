@@ -18,7 +18,6 @@ void options_show_help(void) {
     fprintf(stdout, "-l lower:       minimum bytes per read. default 128K.\n");
     fprintf(stdout, "-t type:        fops type(posix or gfapi). default posix.\n");
     fprintf(stdout, "-c count:       count to read. read entire file by default.\n");
-    fprintf(stdout, "-C concurrency: concurrency. default 1.\n");
     fprintf(stdout, "-d:             debug mode. default off.\n");
     fprintf(stdout, "-----------------------------------------------------------\n");
     fprintf(stdout, "\n");
@@ -40,7 +39,6 @@ void options_init(options *opts) {
     opts->type = POSIX;
     opts->debug = false;
     opts->count = 0;
-    opts->concurrency = 1;
 }
 
 void set_byterate_option(options *opts, char *byterate) {
@@ -137,15 +135,6 @@ void set_lower_option(options *opts, char *lower) {
     opts->lower = u;
 }
 
-void set_concurrency_option(options *opts, char *concurrency) {
-    int l = strlen(concurrency);
-    int c = atoi(concurrency);
-    if (c <= 0) {
-        illegal_option("concurrency must be greater than 0.");
-    }
-    opts->concurrency = c;
-}
-
 void set_host_option(options *opts, char *host) {
     int l = strlen(host);
     if (l == 0) {
@@ -191,7 +180,7 @@ void set_debug_option(options *opts) {
 
 void options_parse(options *opts, int argc, char *argv[]) {
     int opt;
-    while ((opt = getopt(argc, argv, "s:u:l:b:B:h:p:t:v:c:C:d")) != -1) {
+    while ((opt = getopt(argc, argv, "s:u:l:b:B:h:p:t:v:c:d")) != -1) {
         switch (opt) {
             case 'B':
                 set_byterate_option(opts, optarg);
@@ -210,9 +199,6 @@ void options_parse(options *opts, int argc, char *argv[]) {
                 break;
             case 'l':
                 set_lower_option(opts, optarg);
-                break;
-            case 'C':
-                set_concurrency_option(opts, optarg);
                 break;
             case 'h':
                 set_host_option(opts, optarg);

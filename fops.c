@@ -127,16 +127,16 @@ fops *fops_new(char *file, options *opts, glfs_t *glfs) {
             fops = fops_posix_new(file);
             if (opts->debug) {
                 fprintf(stdout,
-                        "type = posix, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u, concurrency = %u\n",
-                        file, opts->upper, opts->lower, opts->byterate, opts->bufsize, opts->concurrency);
+                        "type = posix, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u\n",
+                        file, opts->upper, opts->lower, opts->byterate, opts->bufsize);
             }
             break;
         case GFAPI:
             fops = fops_gfapi_new(glfs, file);
             if (opts->debug) {
                 fprintf(stdout,
-                        "type = gfapi, host = %s, port = %d, volume = %s, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u, concurrency = %u\n",
-                        opts->host, opts->port, opts->volume, file, opts->upper, opts->lower, opts->byterate, opts->bufsize, opts->concurrency);
+                        "type = gfapi, host = %s, port = %d, volume = %s, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u\n",
+                        opts->host, opts->port, opts->volume, file, opts->upper, opts->lower, opts->byterate, opts->bufsize);
             }
             break;
     }
