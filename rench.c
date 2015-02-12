@@ -15,33 +15,17 @@ int main(int argc, char *argv[]) {
     options_parse(&opts, argc, argv);
     options_validate(&opts);
 
-    switch (opts.type) {
-        case POSIX:
-            fops = fops_posix_new(opts.file);
-            if (opts.debug) {
-                fprintf(stdout,
-                        "type = posix, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u, concurrency = %u\n",
-                        opts.file, opts.upper, opts.lower, opts.byterate, opts.bufsize, opts.concurrency);
-            }
-            break;
-        case GFAPI:
-            glfs = glfs_new(opts.volume);
-            if (!glfs) {
-                goto out;
-            }
-            glfs_set_volfile_server(glfs, "tcp", opts.host, opts.port);
-            if (glfs_init(glfs) != 0) {
-                goto out;
-            }
-
-            fops = fops_gfapi_new(glfs, opts.file);
-            if (opts.debug) {
-                fprintf(stdout,
-                        "type = gfapi, host = %s, port = %d, volume = %s, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u, concurrency = %u\n",
-                        opts.host, opts.port, opts.volume, opts.file, opts.upper, opts.lower, opts.byterate, opts.bufsize, opts.concurrency);
-            }
-            break;
+    if (opts.type == GFAPI) {
+        glfs = glfs_new(opts.volume);
+        if (!glfs) {
+            goto out;
+        }
+        glfs_set_volfile_server(glfs, "tcp", opts.host, opts.port);
+        if (glfs_init(glfs) != 0) {
+            goto out;
+        }
     }
+    fops = fops_new(&opts, glfs);
     if (!fops) {
         fprintf(stderr, "failed to allocate fops\n");
         ret = -1;

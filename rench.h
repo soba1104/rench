@@ -75,8 +75,7 @@ bool fops_open(fops *fops);
 int fops_read(fops *fops, void *buf, int len);
 void fops_close(fops *fops);
 void fops_free(fops *fops);
-fops *fops_posix_new(char *path);
-fops *fops_gfapi_new(glfs_t *glfs, char *path);
+fops *fops_new(options *opts, glfs_t *glfs);
 
 void options_show_help(void);
 void options_init(options *opts);

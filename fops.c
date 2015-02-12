@@ -124,3 +124,26 @@ void fops_free(fops *fops) {
     fops->free(fops->state);
     free(fops);
 }
+
+fops *fops_new(options *opts, glfs_t *glfs) {
+    fops *fops;
+    switch (opts->type) {
+        case POSIX:
+            fops = fops_posix_new(opts->file);
+            if (opts->debug) {
+                fprintf(stdout,
+                        "type = posix, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u, concurrency = %u\n",
+                        opts->file, opts->upper, opts->lower, opts->byterate, opts->bufsize, opts->concurrency);
+            }
+            break;
+        case GFAPI:
+            fops = fops_gfapi_new(glfs, opts->file);
+            if (opts->debug) {
+                fprintf(stdout,
+                        "type = gfapi, host = %s, port = %d, volume = %s, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u, concurrency = %u\n",
+                        opts->host, opts->port, opts->volume, opts->file, opts->upper, opts->lower, opts->byterate, opts->bufsize, opts->concurrency);
+            }
+            break;
+    }
+    return fops;
+}
