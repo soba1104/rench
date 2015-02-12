@@ -17,6 +17,7 @@ typedef struct __options {
     uint32_t upper;
     uint32_t lower;
     uint32_t count;
+    uint32_t concurrency;
     char *file;
     char *host;
     char *volume;

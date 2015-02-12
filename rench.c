@@ -23,16 +23,16 @@ int main(int argc, char *argv[]) {
             fops = fops_posix_new(opts.file);
             if (opts.debug) {
                 fprintf(stdout,
-                        "type = posix, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u\n",
-                        opts.file, opts.upper, opts.lower, opts.byterate, opts.bufsize);
+                        "type = posix, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u, concurrency = %u\n",
+                        opts.file, opts.upper, opts.lower, opts.byterate, opts.bufsize, opts.concurrency);
             }
             break;
         case GFAPI:
             fops = fops_gfapi_new(opts.host, opts.port, opts.volume, opts.file);
             if (opts.debug) {
                 fprintf(stdout,
-                        "type = gfapi, host = %s, port = %d, volume = %s, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u\n",
-                        opts.host, opts.port, opts.volume, opts.file, opts.upper, opts.lower, opts.byterate, opts.bufsize);
+                        "type = gfapi, host = %s, port = %d, volume = %s, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u, concurrency = %u\n",
+                        opts.host, opts.port, opts.volume, opts.file, opts.upper, opts.lower, opts.byterate, opts.bufsize, opts.concurrency);
             }
             break;
     }

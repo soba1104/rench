@@ -10,23 +10,24 @@ void illegal_option(char *errmsg) {
 }
 
 void options_show_help(void) {
-    fprintf(stdout, "-------------------- general options --------------------\n");
-    fprintf(stdout, "-f path:      (requirement)target file path.\n");
-    fprintf(stdout, "-s bufsize:   buffer size. default 10M.\n");
-    fprintf(stdout, "-b bitrate:   bitrate. default 1M.\n");
-    fprintf(stdout, "-B byterate:  byterate. default 128K.\n");
-    fprintf(stdout, "-u upper:     maximum bytes per read. default 128K.\n");
-    fprintf(stdout, "-l lower:     minimum bytes per read. default 128K.\n");
-    fprintf(stdout, "-t type:      fops type(posix or gfapi). default posix.\n");
-    fprintf(stdout, "-c count:     count to read. read entire file by default\n");
-    fprintf(stdout, "-d:           debug mode. default off.\n");
-    fprintf(stdout, "---------------------------------------------------------\n");
+    fprintf(stdout, "--------------------- general options ---------------------\n");
+    fprintf(stdout, "-f path:        (requirement)target file path.\n");
+    fprintf(stdout, "-s bufsize:     buffer size. default 10M.\n");
+    fprintf(stdout, "-b bitrate:     bitrate. default 1M.\n");
+    fprintf(stdout, "-B byterate:    byterate. default 128K.\n");
+    fprintf(stdout, "-u upper:       maximum bytes per read. default 128K.\n");
+    fprintf(stdout, "-l lower:       minimum bytes per read. default 128K.\n");
+    fprintf(stdout, "-t type:        fops type(posix or gfapi). default posix.\n");
+    fprintf(stdout, "-c count:       count to read. read entire file by default.\n");
+    fprintf(stdout, "-C concurrency: concurrency. default 1.\n");
+    fprintf(stdout, "-d:             debug mode. default off.\n");
+    fprintf(stdout, "-----------------------------------------------------------\n");
     fprintf(stdout, "\n");
-    fprintf(stdout, "--------------------- gfapi options ---------------------\n");
+    fprintf(stdout, "---------------------- gfapi options ----------------------\n");
     fprintf(stdout, "-h:           hostname.\n");
     fprintf(stdout, "-p:           port number.\n");
     fprintf(stdout, "-v:           volume name.\n");
-    fprintf(stdout, "---------------------------------------------------------\n");
+    fprintf(stdout, "-----------------------------------------------------------\n");
 }
 
 void options_init(options *opts) {
@@ -41,6 +42,7 @@ void options_init(options *opts) {
     opts->type = POSIX;
     opts->debug = false;
     opts->count = 0;
+    opts->concurrency = 1;
 }
 
 void set_byterate_option(options *opts, char *byterate) {
@@ -146,6 +148,15 @@ void set_file_option(options *opts, char *file) {
     strcpy(opts->file, file);
 }
 
+void set_concurrency_option(options *opts, char *concurrency) {
+    int l = strlen(concurrency);
+    int c = atoi(concurrency);
+    if (c <= 0) {
+        illegal_option("concurrency must be greater than 0.");
+    }
+    opts->concurrency = c;
+}
+
 void set_host_option(options *opts, char *host) {
     int l = strlen(host);
     if (l == 0) {
@@ -191,7 +202,7 @@ void set_debug_option(options *opts) {
 
 void options_parse(options *opts, int argc, char *argv[]) {
     int opt;
-    while ((opt = getopt(argc, argv, "s:u:l:f:b:B:h:p:t:v:c:d")) != -1) {
+    while ((opt = getopt(argc, argv, "s:u:l:f:b:B:h:p:t:v:c:C:d")) != -1) {
         switch (opt) {
             case 'B':
                 set_byterate_option(opts, optarg);
@@ -213,6 +224,9 @@ void options_parse(options *opts, int argc, char *argv[]) {
                 break;
             case 'f':
                 set_file_option(opts, optarg);
+                break;
+            case 'C':
+                set_concurrency_option(opts, optarg);
                 break;
             case 'h':
                 set_host_option(opts, optarg);
