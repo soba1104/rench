@@ -13,10 +13,6 @@ void buffer_init(buffer *buf, uint32_t size, uint32_t lower) {
     pthread_cond_init(&buf->consumable_cond, NULL);
 }
 
-void buffer_free(buffer *buf) {
-    // nothing to do
-}
-
 void buffer_consume_end(buffer *buf) {
     pthread_mutex_lock(&buf->mutex);
     buf->consume_end = true;

@@ -3,6 +3,7 @@
 int main(int argc, char *argv[]) {
     options opts;
     fops *fops;
+    task *tasks;
     int ret = 0, i;
 
     if (argc == 1) {
@@ -36,27 +37,28 @@ int main(int argc, char *argv[]) {
         ret = -1;
         goto out;
     }
+    tasks = malloc(sizeof(task) * opts.concurrency);
+    if (!tasks) {
+        fprintf(stderr, "failed to allocate tasks\n");
+        ret = -1;
+        goto out;
+    }
+    memset(tasks, 0, sizeof(task) * opts.concurrency);
 
     for (i = 0; i < opts.concurrency; i++) {
-        buffer buf;
-        producer_args pargs;
-        consumer_args cargs;
-        pthread_t producer_thread;
-        pthread_t consumer_thread;
-
-        buffer_init(&buf, opts.bufsize, opts.lower);
-        producer_init_args(&pargs, &buf, opts.upper, opts.file, fops, opts.debug);
-        consumer_init_args(&cargs, &buf, opts.byterate, opts.count, opts.debug);
-
-        pthread_create(&producer_thread, NULL, producer_main, &pargs);
-        pthread_create(&consumer_thread, NULL, consumer_main, &cargs);
-        pthread_join(producer_thread, NULL);
-        pthread_join(consumer_thread, NULL);
-
-        buffer_free(&buf);
+        task *t = &tasks[i];
+        task_init(t, &opts, fops);
+        task_run(t);
+    }
+    for (i = 0; i < opts.concurrency; i++) {
+        task *t = &tasks[i];
+        task_join(t);
     }
 
 out:
+    if (tasks) {
+        free(tasks);
+    }
     fops_free(fops);
     options_free(&opts);
 

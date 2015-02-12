@@ -2,6 +2,8 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define DEFAULT_BYTERATE (128 * 1024)
 #define DEFAULT_BUFSIZE (10 * 1024 * 1024)
@@ -60,6 +62,14 @@ typedef struct __producer_args {
     bool debug;
 } producer_args;
 
+typedef struct __task {
+    pthread_t producer_thread;
+    pthread_t consumer_thread;
+    producer_args pargs;
+    consumer_args cargs;
+    buffer buf;
+} task;
+
 bool fops_open(fops *fops);
 int fops_read(fops *fops, void *buf, int len);
 void fops_close(fops *fops);
@@ -80,7 +90,6 @@ void *producer_main(void *ptr);
 void producer_init_args(producer_args *args, buffer *buf, uint32_t upper, char *file, fops *fops, bool debug);
 
 void buffer_init(buffer *buf, uint32_t size, uint32_t lower);
-void buffer_free(buffer *buf);
 void buffer_produce_end(buffer *buf);
 void buffer_consume_end(buffer *buf);
 bool buffer_wait_producible(buffer *buf);
@@ -89,3 +98,7 @@ bool buffer_wait_consumable(buffer *buf, uint32_t size, uint64_t *time);
 void buffer_consume(buffer *buf, uint32_t size);
 uint32_t buffer_get_size(buffer *buf);
 uint32_t buffer_get_idx(buffer *buf);
+
+void task_init(task *t, options *opts, fops *fops);
+void task_run(task *t);
+void task_join(task *t);
