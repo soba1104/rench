@@ -2,13 +2,8 @@
 
 int main(int argc, char *argv[]) {
     options opts;
-    buffer buf;
-    pthread_t producer_thread;
-    pthread_t consumer_thread;
-    producer_args pargs;
-    consumer_args cargs;
     fops *fops;
-    int ret = 0;
+    int ret = 0, i;
 
     if (argc == 1) {
         options_show_help();
@@ -42,18 +37,27 @@ int main(int argc, char *argv[]) {
         goto out;
     }
 
-    buffer_init(&buf, opts.bufsize, opts.lower);
-    producer_init_args(&pargs, &buf, opts.upper, opts.file, fops, opts.debug);
-    consumer_init_args(&cargs, &buf, opts.byterate, opts.count, opts.debug);
+    for (i = 0; i < opts.concurrency; i++) {
+        buffer buf;
+        producer_args pargs;
+        consumer_args cargs;
+        pthread_t producer_thread;
+        pthread_t consumer_thread;
 
-    pthread_create(&producer_thread, NULL, producer_main, &pargs);
-    pthread_create(&consumer_thread, NULL, consumer_main, &cargs);
-    pthread_join(producer_thread, NULL);
-    pthread_join(consumer_thread, NULL);
+        buffer_init(&buf, opts.bufsize, opts.lower);
+        producer_init_args(&pargs, &buf, opts.upper, opts.file, fops, opts.debug);
+        consumer_init_args(&cargs, &buf, opts.byterate, opts.count, opts.debug);
+
+        pthread_create(&producer_thread, NULL, producer_main, &pargs);
+        pthread_create(&consumer_thread, NULL, consumer_main, &cargs);
+        pthread_join(producer_thread, NULL);
+        pthread_join(consumer_thread, NULL);
+
+        buffer_free(&buf);
+    }
 
 out:
     fops_free(fops);
-    buffer_free(&buf);
     options_free(&opts);
 
     return ret;
