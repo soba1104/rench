@@ -99,6 +99,7 @@ fops *fops_gfapi_new(glfs_t *fs, char *path) {
     fops_gfapi->state = state;
     state->path = path;
     state->fd = NULL;
+    state->fs = fs;
     return fops_gfapi;
 }
 
