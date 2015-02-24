@@ -3,6 +3,8 @@
 int main(int argc, char *argv[]) {
     options opts;
     task *tasks;
+    rados_t rados_cluster = NULL;
+    rados_ioctx_t rados_ioctx = NULL;
     glfs_t *glfs = NULL;
     int ret = 0, i, numfiles;
 
@@ -33,6 +35,33 @@ int main(int argc, char *argv[]) {
             goto out;
         }
     }
+    if (opts.type == RADOS) {
+        int err;
+
+        err = rados_create2(&rados_cluster, opts.rados_cluster_name, opts.rados_user_name, 0);
+        if (err < 0) {
+            fprintf(stderr, "Failed to create rados cluster handle. Error = %s.\n", strerror(-err));
+            goto out;
+        }
+
+        err = rados_conf_read_file(rados_cluster, opts.rados_config_path);
+        if (err < 0) {
+            fprintf(stderr, "Failed to read rados config file. Error = %s.\n", strerror(-err));
+            goto out;
+        }
+
+        err = rados_connect(rados_cluster);
+        if (err < 0) {
+            fprintf(stderr, "Failed to connect to rados cluster. Error = %s.\n", strerror(-err));
+            goto out;
+        }
+
+        err = rados_ioctx_create(rados_cluster, opts.rados_pool_name, &rados_ioctx);
+        if (err < 0) {
+            fprintf(stderr, "Failed to create rados ioctx. Error = %s.\n", strerror(-err));
+            goto out;
+        }
+    }
     tasks = malloc(sizeof(task) * numfiles);
     if (!tasks) {
         fprintf(stderr, "failed to allocate tasks\n");
@@ -44,7 +73,7 @@ int main(int argc, char *argv[]) {
     for (i = 0; i < numfiles; i++) {
         task *t = &tasks[i];
         char *f = argv[optind + i];
-        if (!task_init(f, t, &opts, glfs)) {
+        if (!task_init(f, t, &opts, glfs, rados_ioctx)) {
             fprintf(stderr, "failed to init task\n");
         }
         task_run(t);
@@ -56,6 +85,12 @@ int main(int argc, char *argv[]) {
 out:
     if (glfs) {
         glfs_fini(glfs);
+    }
+    if (rados_cluster) {
+        rados_shutdown(rados_cluster);
+    }
+    if (rados_ioctx) {
+        rados_ioctx_destroy(rados_ioctx);
     }
     if (tasks) {
         for (i = 0; i < numfiles; i++) {

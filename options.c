@@ -10,22 +10,28 @@ void illegal_option(char *errmsg) {
 }
 
 void options_show_help(void) {
-    fprintf(stdout, "--------------------- general options ---------------------\n");
+    fprintf(stdout, "------------------------ general options ------------------------\n");
     fprintf(stdout, "-s bufsize:     buffer size. default 10M.\n");
     fprintf(stdout, "-b bitrate:     bitrate. default 1M.\n");
     fprintf(stdout, "-B byterate:    byterate. default 128K.\n");
     fprintf(stdout, "-u upper:       maximum bytes per read. default 128K.\n");
     fprintf(stdout, "-l lower:       minimum bytes per read. default 128K.\n");
-    fprintf(stdout, "-t type:        fops type(posix or gfapi). default posix.\n");
+    fprintf(stdout, "-t type:        fops type(posix, gfapi or rados). default posix.\n");
     fprintf(stdout, "-c count:       count to read. read entire file by default.\n");
     fprintf(stdout, "-d:             debug mode. default off.\n");
-    fprintf(stdout, "-----------------------------------------------------------\n");
+    fprintf(stdout, "-----------------------------------------------------------------\n");
     fprintf(stdout, "\n");
-    fprintf(stdout, "---------------------- gfapi options ----------------------\n");
-    fprintf(stdout, "-h:           hostname.\n");
-    fprintf(stdout, "-p:           port number.\n");
-    fprintf(stdout, "-v:           volume name.\n");
-    fprintf(stdout, "-----------------------------------------------------------\n");
+    fprintf(stdout, "------------------------- gfapi options -------------------------\n");
+    fprintf(stdout, "-h:             hostname.\n");
+    fprintf(stdout, "-p:             port number.\n");
+    fprintf(stdout, "-v:             volume name.\n");
+    fprintf(stdout, "-----------------------------------------------------------------\n");
+    fprintf(stdout, "\n");
+    fprintf(stdout, "------------------------- rados options -------------------------\n");
+    fprintf(stdout, "-N:             rados cluster name.\n");
+    fprintf(stdout, "-P:             rados pool name.\n");
+    fprintf(stdout, "-C:             rados config file path.\n");
+    fprintf(stdout, "-U:             rados user name.\n");
 }
 
 void options_init(options *opts) {
@@ -39,6 +45,10 @@ void options_init(options *opts) {
     opts->type = POSIX;
     opts->debug = false;
     opts->count = 0;
+    opts->rados_cluster_name = NULL;
+    opts->rados_pool_name = NULL;
+    opts->rados_user_name = NULL;
+    opts->rados_config_path = NULL;
 }
 
 void set_byterate_option(options *opts, char *byterate) {
@@ -164,11 +174,49 @@ void set_volume_option(options *opts, char *volume) {
     strcpy(opts->volume, volume);
 }
 
+void set_rados_cluster_name(options *opts, char *cluster_name) {
+    int l = strlen(cluster_name);
+    if (l == 0) {
+        illegal_option("invalid rados cluster name.");
+    }
+    opts->rados_cluster_name = malloc(l + 1);
+    strcpy(opts->rados_cluster_name, cluster_name);
+}
+
+void set_rados_pool_name(options *opts, char *pool_name) {
+    int l = strlen(pool_name);
+    if (l == 0) {
+        illegal_option("invalid rados pool name.");
+    }
+    opts->rados_pool_name = malloc(l + 1);
+    strcpy(opts->rados_pool_name, pool_name);
+}
+
+void set_rados_config_path(options *opts, char *config_path) {
+    int l = strlen(config_path);
+    if (l == 0) {
+        illegal_option("invalid rados config path.");
+    }
+    opts->rados_config_path = malloc(l + 1);
+    strcpy(opts->rados_config_path, config_path);
+}
+
+void set_rados_user_name(options *opts, char *user_name) {
+    int l = strlen(user_name);
+    if (l == 0) {
+        illegal_option("invalid rados user name.");
+    }
+    opts->rados_user_name = malloc(l + 1);
+    strcpy(opts->rados_user_name, user_name);
+}
+
 void set_fops_type_option(options *opts, char *type) {
     if (strcmp(type, "posix") == 0) {
         opts->type = POSIX;
     } else if (strcmp(type, "gfapi") == 0) {
         opts->type = GFAPI;
+    } else if (strcmp(type, "rados") == 0) {
+        opts->type = RADOS;
     } else {
         illegal_option("invalid fops type.");
     }
@@ -180,7 +228,7 @@ void set_debug_option(options *opts) {
 
 void options_parse(options *opts, int argc, char *argv[]) {
     int opt;
-    while ((opt = getopt(argc, argv, "s:u:l:b:B:h:p:t:v:c:d")) != -1) {
+    while ((opt = getopt(argc, argv, "s:u:l:b:B:h:p:t:v:c:N:P:C:U:d")) != -1) {
         switch (opt) {
             case 'B':
                 set_byterate_option(opts, optarg);
@@ -209,6 +257,18 @@ void options_parse(options *opts, int argc, char *argv[]) {
             case 'v':
                 set_volume_option(opts, optarg);
                 break;
+            case 'N':
+                set_rados_cluster_name(opts, optarg);
+                break;
+            case 'P':
+                set_rados_pool_name(opts, optarg);
+                break;
+            case 'C':
+                set_rados_config_path(opts, optarg);
+                break;
+            case 'U':
+                set_rados_user_name(opts, optarg);
+                break;
             case 't':
                 set_fops_type_option(opts, optarg);
                 break;
@@ -229,6 +289,20 @@ void options_validate(options *opts) {
         }
         if (!opts->volume) {
             illegal_option("volume name is not given.");
+        }
+    }
+    if (opts->type == RADOS) {
+        if (!opts->rados_cluster_name) {
+            illegal_option("rados cluster name is not given.");
+        }
+        if (!opts->rados_pool_name) {
+            illegal_option("rados pool name is not given.");
+        }
+        if (!opts->rados_config_path) {
+            illegal_option("rados config path is not given.");
+        }
+        if (!opts->rados_user_name) {
+            illegal_option("rados user name is not given.");
         }
     }
     if (opts->upper > opts->bufsize) {

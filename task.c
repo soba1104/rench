@@ -1,7 +1,7 @@
 #include "rench.h"
 
-bool task_init(char *file, task *t, options *opts, glfs_t *glfs) {
-    t->fops = fops_new(file, opts, glfs);
+bool task_init(char *file, task *t, options *opts, glfs_t *glfs, rados_ioctx_t rados_ioctx) {
+    t->fops = fops_new(file, opts, glfs, rados_ioctx);
     if (!t->fops) {
         return false;
     }

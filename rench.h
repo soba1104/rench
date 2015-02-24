@@ -5,13 +5,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <glusterfs/api/glfs.h>
+#include <rados/librados.h>
 
 #define DEFAULT_BYTERATE (128 * 1024)
 #define DEFAULT_BUFSIZE (10 * 1024 * 1024)
 
 typedef enum {
     POSIX,
-    GFAPI
+    GFAPI,
+    RADOS
 } fops_type;
 
 typedef struct __options {
@@ -23,6 +25,10 @@ typedef struct __options {
     char *host;
     char *volume;
     int port;
+    char *rados_cluster_name;
+    char *rados_pool_name;
+    char *rados_config_path;
+    char *rados_user_name;
     fops_type type;
     bool debug;
 } options;
@@ -74,7 +80,7 @@ bool fops_open(fops *fops);
 int fops_read(fops *fops, void *buf, int len);
 void fops_close(fops *fops);
 void fops_free(fops *fops);
-fops *fops_new(char *file, options *opts, glfs_t *glfs);
+fops *fops_new(char *file, options *opts, glfs_t *glfs, rados_ioctx_t rados_ioctx);
 
 void options_show_help(void);
 void options_init(options *opts);
@@ -98,7 +104,7 @@ void buffer_consume(buffer *buf, uint32_t size);
 uint32_t buffer_get_size(buffer *buf);
 uint32_t buffer_get_idx(buffer *buf);
 
-bool task_init(char *file, task *t, options *opts, glfs_t *glfs);
+bool task_init(char *file, task *t, options *opts, glfs_t *glfs, rados_ioctx_t rados_ioctx);
 void task_run(task *t);
 void task_join(task *t);
 void task_free(task *t);

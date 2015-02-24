@@ -103,6 +103,55 @@ fops *fops_gfapi_new(glfs_t *fs, char *path) {
     return fops_gfapi;
 }
 
+typedef struct __fops_rados_state {
+    char *objname;
+    rados_ioctx_t ioctx;
+    int idx;
+} fops_rados_state;
+
+bool fops_rados_open(void *arg) {
+    char buf[1];
+    fops_rados_state *state = arg;
+    return rados_read(state->ioctx, state->objname, buf, 1, 0) == 1;
+}
+
+int fops_rados_read(void *arg, void *buf, int len) {
+    fops_rados_state *state = arg;
+    int ret = rados_read(state->ioctx, state->objname, buf, len, state->idx);
+    if (ret > 0) {
+        state->idx += ret;
+    }
+    return ret;
+}
+
+void fops_rados_close(void *arg) {
+    // nothing to do
+}
+
+void fops_rados_free(void *arg) {
+    // nothing to do
+}
+
+fops *fops_rados_new(rados_ioctx_t *ioctx, char *objname) {
+    fops *fops_rados;
+    fops_rados_state *state;
+
+    fops_rados = malloc(sizeof(fops) + sizeof(fops_rados_state));
+    if (!fops_rados) {
+        return NULL;
+    }
+    state = (fops_rados_state*)(fops_rados + 1);
+    fops_rados->open = fops_rados_open;
+    fops_rados->read = fops_rados_read;
+    fops_rados->close = fops_rados_close;
+    fops_rados->free = fops_rados_free;
+    fops_rados->state = state;
+    state->objname = objname;
+    state->ioctx = ioctx;
+    state->idx = 0;
+    return fops_rados;
+}
+
 bool fops_open(fops *fops) {
     return fops->open(fops->state);
 }
@@ -120,7 +169,7 @@ void fops_free(fops *fops) {
     free(fops);
 }
 
-fops *fops_new(char *file, options *opts, glfs_t *glfs) {
+fops *fops_new(char *file, options *opts, glfs_t *glfs, rados_ioctx_t rados_ioctx) {
     fops *fops;
     switch (opts->type) {
         case POSIX:
@@ -128,7 +177,7 @@ fops *fops_new(char *file, options *opts, glfs_t *glfs) {
             if (opts->debug) {
                 fprintf(stdout,
                         "type = posix, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u\n",
-                        file, opts->upper, opts->lower, opts->byterate, opts->bufsize);
+                        file, opts->byterate, opts->upper, opts->lower, opts->bufsize);
             }
             break;
         case GFAPI:
@@ -136,7 +185,15 @@ fops *fops_new(char *file, options *opts, glfs_t *glfs) {
             if (opts->debug) {
                 fprintf(stdout,
                         "type = gfapi, host = %s, port = %d, volume = %s, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u\n",
-                        opts->host, opts->port, opts->volume, file, opts->upper, opts->lower, opts->byterate, opts->bufsize);
+                        opts->host, opts->port, opts->volume, file, opts->byterate, opts->upper, opts->lower, opts->bufsize);
+            }
+            break;
+        case RADOS:
+            fops = fops_rados_new(rados_ioctx, file);
+            if (opts->debug) {
+                fprintf(stdout,
+                        "type = rados, cluster name = %s, pool name = %d, config path = %s, user name = %s, file = %s, byterate = %u, upper = %u, lower = %u, bufsize = %u\n",
+                        opts->rados_cluster_name, opts->rados_pool_name, opts->rados_config_path, opts->rados_user_name, file, opts->byterate, opts->upper, opts->lower, opts->bufsize);
             }
             break;
     }
