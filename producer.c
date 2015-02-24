@@ -49,6 +49,12 @@ void *producer_main(void *ptr) {
                 fprintf(stdout, "read complete %d bytes\n", ret);
             }
             buffer_produce(buf, ret);
+            if (ret < toread) {
+                if (debug) {
+                    fprintf(stdout, "produce end\n");
+                }
+                goto out;
+            }
         } else if (!ret) {
             if (debug) {
                 fprintf(stdout, "produce end\n");
