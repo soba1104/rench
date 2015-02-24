@@ -2,7 +2,7 @@
 
 int main(int argc, char *argv[]) {
     options opts;
-    task *tasks;
+    task *tasks = NULL;
     rados_t rados_cluster = NULL;
     rados_ioctx_t rados_ioctx = NULL;
     glfs_t *glfs = NULL;
